@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Sorter STEM</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f4f7f1;
+            color: #263d2e;
+        }
+
+        .navbar {
+            padding: 20px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-bottom: 1px solid #e8eee5;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: #e6f3e5;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #315a3d;
+        }
+
+        .logo p {
+            font-size: 11px;
+            color: #91a194;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .nav-label {
+            background: #edf5eb;
+            color: #4c8155;
+            padding: 9px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1050px;
+            padding: 45px 25px;
+            margin: auto;
+        }
+
+        .heading {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e4f0df;
+            color: #54815a;
+            padding: 7px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .heading h1 {
+            font-size: 36px;
+            font-weight: 900;
+            color: #2d4b35;
+            margin-bottom: 8px;
+        }
+
+        .heading p {
+            color: #849286;
+            font-size: 15px;
+        }
+
+        /* STATISTIK */
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 17px;
+            display: flex;
+            align-items: center;
+            gap: 17px;
+            border: 1px solid #e9eee6;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .score-icon {
+            background: #e8f4df;
+        }
+
+        .year-icon {
+            background: #fff1d9;
+        }
+
+        .stat-info p {
+            font-size: 12px;
+            color: #94a095;
+            font-weight: 800;
+        }
+
+        .stat-info h2 {
+            font-size: 25px;
+            color: #31583b;
+            font-weight: 900;
+        }
+
+        .stat-info small {
+            font-size: 13px;
+            color: #849286;
+        }
+
+        /* GAME */
+
+        .game-card {
+            background: white;
+            border: 1px solid #e9eee6;
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(40,70,45,0.04);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .game-header h3 {
+            font-size: 16px;
+            color: #385740;
+            font-weight: 900;
+        }
+
+        .game-header span {
+            font-size: 12px;
+            font-weight: 800;
+            color: #94a095;
+        }
+
+        /* TEMPAT SAMPAH */
+
+        .waste-box {
+            min-height: 245px;
+            background: #f8faf6;
+            border: 2px dashed #c9dac8;
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding: 25px;
+        }
+
+        .waste-icon {
+            width: 105px;
+            height: 105px;
+            background: white;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 58px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+        }
+
+        .waste-icon svg {
+            width: 75px;
+            height: 85px;
+        }
+
+        .waste-box h2 {
+            font-size: 27px;
+            color: #354e3b;
+            font-weight: 900;
+        }
+
+        .waste-box p {
+            font-size: 12px;
+            color: #9aa69a;
+            font-weight: 700;
+        }
+
+        /* PILIHAN KATEGORI */
+
+        .category-title {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .category-title h3 {
+            font-size: 16px;
+            color: #3c5942;
+            font-weight: 900;
+        }
+
+        .category-title p {
+            color: #9aa69a;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .option {
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 22px 12px;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option:hover:not(:disabled) {
+            transform: translateY(-4px);
+        }
+
+        .option:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .option .icon {
+            font-size: 30px;
+        }
+
+        .option h3 {
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .organic {
+            background: #edf6e9;
+            border-color: #d7e9d0;
+            color: #538653;
+        }
+
+        .inorganic {
+            background: #fff2e8;
+            border-color: #f5dfce;
+            color: #c47d48;
+        }
+
+        .hazardous {
+            background: #fcebed;
+            border-color: #f2d5da;
+            color: #c65f72;
+        }
+
+        /* FEEDBACK */
+
+        .feedback {
+            display: none;
+            padding: 16px 20px;
+            margin-top: 22px;
+            border-radius: 13px;
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .feedback.correct {
+            display: block;
+            background: #e8f5e8;
+            color: #43804b;
+        }
+
+        .feedback.wrong {
+            display: block;
+            background: #fcebec;
+            color: #bd5d6b;
+        }
+
+        /* PENJELASAN */
+
+        .explanation {
+            display: none;
+            margin-top: 22px;
+            padding: 25px;
+            background: #f7faf5;
+            border: 1px solid #e0eadc;
+            border-radius: 17px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .explanation-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            background: #e3f1df;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+        }
+
+        .explanation-header h3 {
+            color: #31583b;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .explanation-header p {
+            font-size: 11px;
+            color: #8a9b8b;
+        }
+
+        .info-item {
+            margin-bottom: 17px;
+        }
+
+        .info-item h4 {
+            color: #42664a;
+            font-size: 14px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .info-item p {
+            color: #718075;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .fact-box {
+            padding: 15px;
+            border-radius: 12px;
+            background: #eaf3e5;
+            color: #527b51;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* NEXT BUTTON */
+
+        .next-btn {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            background: #315b3d;
+            color: white;
+            border: none;
+            border-radius: 13px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .next-btn:hover {
+            background: #24492f;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #a0aca0;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                padding: 18px 5%;
+            }
+
+            .logo h2 {
+                font-size: 18px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+
+            .heading h1 {
+                font-size: 27px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 13px 10px;
+                gap: 8px;
+            }
+
+            .stat-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 19px;
+            }
+
+            .stat-info h2 {
+                font-size: 19px;
+            }
+
+            .stat-info p {
+                font-size: 9px;
+            }
+
+            .game-card {
+                padding: 18px 13px;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .option {
+                flex-direction: row;
+                justify-content: center;
+                padding: 14px;
+            }
+
+            .explanation {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            <div class="logo-icon">♻️</div>
+
+            <div>
+                <h2>Eco-Sorter</h2>
+                <p>STEM EDUCATION</p>
+            </div>
+        </div>
+
+        <div class="nav-label">
+            🌱 ECO GAME
+        </div>
+
+    </nav>
+
+
+    <main class="container">
+
+        <!-- JUDUL -->
+
+        <section class="heading">
+
+            <div class="tag">
+                ♻️ LET'S SAVE THE EARTH
+            </div>
+
+            <h1>Eco-Sorter STEM</h1>
+
+            <p>
+                Kenali jenis sampah dan selamatkan lingkungan
+                melalui permainan edukatif!
+            </p>
+
+        </section>
+
+
+        <!-- STATISTIK -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-icon score-icon">🏆</div>
+
+                <div class="stat-info">
+                    <p>TOTAL SKOR</p>
+                    <h2 id="score">15 <small>poin</small></h2>
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon year-icon">🌍</div>
+
+                <div class="stat-info">
+                    <p>TAHUN URAI DISELAMATKAN</p>
+                    <h2 id="years">900 <small>tahun</small></h2>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- AREA GAME -->
+
+        <section class="game-card">
+
+            <div class="game-header">
+
+                <h3>🎮 Klasifikasi Sampah</h3>
+
+                <span id="question-number">SOAL 1 / 5</span>
+
+            </div>
+
+
+            <!-- OBJEK SAMPAH -->
+
+            <div class="waste-box">
+
+                <div class="waste-icon" id="waste-icon"></div>
+
+                <h2 id="waste-name">Botol Plastik</h2>
+
+                <p>Pilih kategori sampah yang tepat!</p>
+
+            </div>
+
+
+            <!-- PILIH KATEGORI -->
+
+            <div class="category-title">
+
+                <h3>Termasuk kategori apakah sampah ini?</h3>
+
+                <p>Pilih salah satu jawaban di bawah ini</p>
+
+            </div>
+
+
+            <div class="options">
+
+                <button class="option organic"
+                    onclick="checkAnswer('Organik')">
+
+                    <span class="icon">🌿</span>
+                    <h3>Organik</h3>
+
+                </button>
+
+                <button class="option inorganic"
+                    onclick="checkAnswer('Anorganik')">
+
+                    <span class="icon">♻️</span>
+                    <h3>Anorganik</h3>
+
+                </button>
+
+                <button class="option hazardous"
+                    onclick="checkAnswer('Limbah B3')">
+
+                    <span class="icon">☣️</span>
+                    <h3>Limbah B3</h3>
+
+                </button>
+
+            </div>
+
+
+            <!-- HASIL JAWABAN -->
+
+            <div id="feedback" class="feedback"></div>
+
+
+            <!-- PENJELASAN DETAIL -->
+
+            <div id="explanation" class="explanation">
+
+                <div class="explanation-header">
+
+                    <div class="explanation-icon">📚</div>
+
+                    <div>
+                        <h3>Informasi Sampah</h3>
+                        <p>Kenali dan pahami jenis sampah</p>
+                    </div>
+
+                </div>
+
+                <div id="explanation-content"></div>
+
+            </div>
+
+
+            <!-- TOMBOL LANJUT -->
+
+            <button class="next-btn" id="next-btn"
+                onclick="nextWaste()">
+
+                Sampah Selanjutnya →
+
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        ♻️ Eco-Sorter STEM | Belajar Memilah, Menjaga Bumi
+    </footer>
+
+
+    <script>
+
+        // ILUSTRASI BOTOL PLASTIK
+
+        const plasticBottle = `
+        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+                <linearGradient id="bottleColor" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#b7e6f5"/>
+                    <stop offset="50%" stop-color="#e3f7ff"/>
+                    <stop offset="100%" stop-color="#8acde7"/>
+                </linearGradient>
+            </defs>
+
+            <rect x="39" y="5" width="22" height="12"
+                rx="3" fill="#3f9ac1"/>
+
+            <path d="M38 17 L62 17 L62 25
+                Q62 30 70 36
+                L77 43 Q81 48 81 57
+                L81 104 Q81 114 71 114
+                L29 114 Q19 114 19 104
+                L19 57 Q19 48 23 43
+                L30 36 Q38 30 38 25 Z"
+                fill="url(#bottleColor)"
+                stroke="#65afd0"
+                stroke-width="2.5"/>
+
+            <path d="M29 46 L29 100"
+                stroke="#ffffff"
+                stroke-width="5"
+                stroke-linecap="round"
+                opacity="0.8"/>
+
+            <rect x="25" y="63" width="50" height="28"
+                rx="5" fill="#4cadd0" opacity="0.85"/>
+
+            <path d="M36 75 L64 75"
+                stroke="white"
+                stroke-width="3"
+                stroke-linecap="round"/>
+
+            <path d="M36 82 L57 82"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"/>
+
+        </svg>`;
+
+
+        // DATA SAMPAH DAN PENJELASAN
+
+        const wastes = [
+
+            {
+                name: "Botol Plastik",
+                icon: plasticBottle,
+                category: "Anorganik",
+                years: 450,
+
+                description:
+                    "Botol plastik merupakan sampah anorganik karena dibuat dari bahan polimer sintetis, seperti PET (Polyethylene Terephthalate). Bahan ini berasal dari proses industri dan tidak mudah terurai secara alami oleh mikroorganisme.",
+
+                reason:
+                    "Botol plastik tidak berasal dari sisa makhluk hidup yang dapat membusuk secara alami. Struktur kimianya relatif stabil sehingga membutuhkan waktu sangat lama untuk mengalami penguraian di lingkungan.",
+
+                impact:
+                    "Jika dibuang sembarangan, botol plastik dapat menyumbat saluran air, mencemari sungai dan laut, serta membahayakan hewan yang dapat menelan atau terjerat sampah plastik. Plastik juga dapat terpecah menjadi bagian yang sangat kecil atau mikroplastik.",
+
+                solution:
+                    "Kosongkan botol, lepaskan tutup dan label jika diperlukan, lalu bersihkan dan keringkan. Setelah itu, kumpulkan untuk disetorkan ke bank sampah atau fasilitas daur ulang. Botol plastik dapat diolah kembali menjadi bahan baku produk baru.",
+
+                fact:
+                    "PET adalah salah satu jenis plastik yang banyak digunakan untuk kemasan minuman. Botol PET memiliki kode daur ulang angka 1.",
+
+                decomposition:
+                    "Sekitar 450 tahun atau lebih dalam kondisi lingkungan tertentu. Angka ini merupakan perkiraan, bukan waktu penguraian yang pasti."
+            },
+
+            {
+                name: "Kulit Pisang",
+                icon: "🍌",
+                category: "Organik",
+                years: 2,
+
+                description:
+                    "Kulit pisang termasuk sampah organik karena berasal dari bagian tumbuhan. Sampah ini mengandung bahan alami yang dapat diuraikan oleh mikroorganisme seperti bakteri dan jamur.",
+
+                reason:
+                    "Kulit pisang memiliki kandungan bahan organik yang dapat membusuk dan mengalami proses penguraian secara alami.",
+
+                impact:
+                    "Jika menumpuk, sampah organik dapat menimbulkan bau tidak sedap dan menarik lalat. Pembusukan sampah organik yang tidak dikelola juga dapat menghasilkan gas rumah kaca.",
+
+                solution:
+                    "Kulit pisang dapat diolah menjadi kompos melalui proses pengomposan. Kompos dapat dimanfaatkan sebagai pupuk organik untuk membantu menyuburkan tanah dan tanaman.",
+
+                fact:
+                    "Sampah kulit pisang dapat dikembalikan ke tanah melalui proses pengomposan sehingga unsur haranya dapat dimanfaatkan kembali oleh tanaman.",
+
+                decomposition:
+                    "Beberapa minggu hingga beberapa bulan, tergantung kondisi lingkungan."
+            },
+
+            {
+                name: "Baterai Bekas",
+                icon: "🔋",
+                category: "Limbah B3",
+                years: 100,
+
+                description:
+                    "Baterai bekas termasuk limbah B3 (Bahan Berbahaya dan Beracun) karena dapat mengandung bahan kimia dan logam yang berbahaya bagi kesehatan manusia maupun lingkungan.",
+
+                reason:
+                    "Baterai memiliki komponen kimia yang dapat mencemari tanah dan air apabila mengalami kebocoran atau dibuang sembarangan.",
+
+                impact:
+                    "Kandungan bahan kimia tertentu pada baterai dapat mencemari lingkungan, mengganggu organisme hidup, dan menimbulkan risiko kesehatan jika penanganannya tidak tepat.",
+
+                solution:
+                    "Jangan membuang baterai bekas ke tempat sampah biasa. Pisahkan dan kumpulkan dalam wadah yang aman dan kering, kemudian serahkan ke fasilitas pengumpulan atau pengelolaan limbah B3 yang sesuai.",
+
+                fact:
+                    "Baterai isi ulang dan baterai sekali pakai dapat memiliki komposisi kimia yang berbeda. Karena itu, pengelolaannya perlu mengikuti jenis baterainya.",
+
+                decomposition:
+                    "Tidak ada satu angka waktu penguraian yang berlaku untuk semua jenis baterai. Komponen baterai dapat bertahan lama dan mencemari lingkungan."
+            },
+
+            {
+                name: "Daun Kering",
+                icon: "🍂",
+                category: "Organik",
+                years: 1,
+
+                description:
+                    "Daun kering termasuk sampah organik karena berasal dari tumbuhan. Daun mengandung bahan alami yang dapat diuraikan oleh organisme pengurai.",
+
+                reason:
+                    "Daun kering dapat mengalami pembusukan melalui aktivitas mikroorganisme dan organisme tanah sehingga berubah menjadi bahan organik yang lebih sederhana.",
+
+                impact:
+                    "Jika dibiarkan menumpuk, daun kering dapat mengganggu kebersihan lingkungan. Namun, daun kering sebenarnya memiliki manfaat jika dikelola dengan baik.",
+
+                solution:
+                    "Kumpulkan daun kering dan manfaatkan sebagai bahan kompos atau mulsa tanaman. Pengolahan ini dapat membantu memperbaiki kondisi tanah dan mengurangi sampah.",
+
+                fact:
+                    "Daun kering dapat menjadi sumber bahan organik yang membantu menjaga kesuburan tanah.",
+
+                decomposition:
+                    "Beberapa minggu hingga beberapa bulan, bergantung pada jenis daun, kelembapan, dan kondisi lingkungan."
+            },
+
+            {
+                name: "Kaleng Minuman",
+                icon: "🥫",
+                category: "Anorganik",
+                years: 200,
+
+                description:
+                    "Kaleng minuman termasuk sampah anorganik karena umumnya terbuat dari aluminium atau baja. Kedua bahan tersebut merupakan material hasil pengolahan industri.",
+
+                reason:
+                    "Kaleng tidak dapat membusuk seperti sampah organik. Material logam membutuhkan proses tertentu untuk mengalami perubahan dan dapat didaur ulang.",
+
+                impact:
+                    "Kaleng yang dibuang sembarangan dapat mengotori lingkungan, melukai manusia atau hewan, dan berpotensi menimbulkan pencemaran jika tidak dikelola.",
+
+                solution:
+                    "Kosongkan dan bersihkan kaleng, kemudian kumpulkan untuk diserahkan kepada bank sampah atau tempat daur ulang logam. Aluminium dan baja dapat diolah kembali menjadi produk baru.",
+
+                fact:
+                    "Aluminium dapat didaur ulang berkali-kali tanpa kehilangan sebagian besar sifat dasarnya apabila proses daur ulang dilakukan dengan benar.",
+
+                decomposition:
+                    "Waktunya sangat bervariasi, dapat mencapai puluhan hingga ratusan tahun, tergantung jenis logam dan kondisi lingkungan."
+            }
+
+        ];
+
+
+        let score = 15;
+        let years = 900;
+        let currentIndex = 0;
+        let answered = false;
+
+
+        // TAMPILKAN SAMPAH
+
+        function displayWaste() {
+
+            const waste = wastes[currentIndex];
+
+            document.getElementById("waste-name").textContent =
+                waste.name;
+
+            document.getElementById("waste-icon").innerHTML =
+                waste.icon;
+
+            document.getElementById("question-number").textContent =
+                "SOAL " + (currentIndex + 1) + " / " + wastes.length;
+
+        }
+
+
+        // PENJELASAN DETAIL
+
+        function showExplanation(waste) {
+
+            const explanation = document.getElementById("explanation");
+
+            document.getElementById("explanation-content").innerHTML = `
+
+                <div class="info-item">
+                    <h4>📌 1. Mengenal Sampah</h4>
+                    <p>${waste.description}</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>🔍 2. Mengapa Termasuk ${waste.category}?</h4>
+                    <p>${waste.reason}</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>🌍 3. Dampak Terhadap Lingkungan</h4>
+                    <p>${waste.impact}</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>♻️ 4. Cara Pengolahan yang Benar</h4>
+                    <p>${waste.solution}</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>💡 5. Fakta Menarik</h4>
+                    <p>${waste.fact}</p>
+                </div>
+
+                <div class="fact-box">
+                    <b>⏳ Perkiraan waktu penguraian:</b><br>
+                    ${waste.decomposition}
+                </div>
+
+            `;
+
+            explanation.classList.add("show");
+
+        }
+
+
+        // PERIKSA JAWABAN
+
+        function checkAnswer(answer) {
+
+            if (answered) return;
+
+            const waste = wastes[currentIndex];
+
+            const feedback = document.getElementById("feedback");
+
+            const buttons = document.querySelectorAll(".option");
+
+            if (answer === waste.category) {
+
+                score += 15;
+                years += waste.years;
+
+                document.getElementById("score").innerHTML =
+                    score + " <small>poin</small>";
+
+                document.getElementById("years").innerHTML =
+                    years + " <small>tahun</small>";
+
+                feedback.textContent =
+                    "✔ BENAR! Hebat, kamu berhasil mengklasifikasikan " +
+                    waste.name + " sebagai sampah " + waste.category + ".";
+
+                feedback.className = "feedback correct";
+
+                // TAMPILKAN PENJELASAN
+
+                showExplanation(waste);
+
+            } else {
+
+                feedback.textContent =
+                    "✖ BELUM TEPAT! " + waste.name +
+                    " termasuk kategori " + waste.category +
+                    ". Pelajari kembali penjelasan berikut.";
+
+                feedback.className = "feedback wrong";
+
+                // TETAP BERIKAN EDUKASI MESKIPUN SALAH
+
+                showExplanation(waste);
+
+            }
+
+            answered = true;
+
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+
+            document.getElementById("next-btn").style.display =
+                "block";
+
+        }
+
+
+        // LANJUT KE SOAL BERIKUTNYA
+
+        function nextWaste() {
+
+            currentIndex++;
+
+            if (currentIndex >= wastes.length) {
+
+                alert(
+                    "🎉 Selamat! Kamu telah menyelesaikan semua soal Eco-Sorter STEM!"
+                );
+
+                currentIndex = 0;
+            }
+
+            answered = false;
+
+            displayWaste();
+
+            document.getElementById("feedback").textContent = "";
+
+            document.getElementById("feedback").className =
+                "feedback";
+
+            document.getElementById("explanation").classList.remove("show");
+
+            document.getElementById("explanation-content").innerHTML = "";
+
+            document.getElementById("next-btn").style.display =
+                "none";
+
+            const buttons = document.querySelectorAll(".option");
+
+            buttons.forEach(button => {
+                button.disabled = false;
+            });
+
+        }
+
+
+        // MULAI GAME
+
+        displayWaste();
+
+    </script>
+
+</body>
+</html>
