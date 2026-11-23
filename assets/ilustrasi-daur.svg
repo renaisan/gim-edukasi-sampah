@@ -1,0 +1,40 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="140" height="160" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Ilustrasi">
+<circle id="Ellipse" cx="70" cy="90" r="70" fill="white" fill-opacity="0.4"/>
+<g id="Ilustrasi tong">
+<ellipse id="Ellipse_2" cx="70.2" cy="150.3" rx="55" ry="7.7" fill="#1F3A28" fill-opacity="0.16"/>
+<rect id="Rectangle" x="21.8" y="41.4" width="96.8" height="107.8" rx="17.6" fill="url(#paint0_linear_0_4)"/>
+<rect id="Rectangle_2" x="28.4" y="52.4" width="8.8" height="83.6" rx="4.4" fill="white" fill-opacity="0.22"/>
+<rect id="Rectangle_3" x="13" y="21.6" width="114.4" height="26.4" rx="12.1" fill="url(#paint1_linear_0_4)"/>
+<rect id="Rectangle_4" x="21.8" y="26" width="96.8" height="4.4" rx="2.2" fill="white" fill-opacity="0.3"/>
+<rect id="Rectangle_5" x="52.6" y="6.2" width="35.2" height="19.8" rx="8.8" fill="#3F82CC"/>
+<ellipse id="Ellipse_3" cx="54.25" cy="67.25" rx="4.95" ry="6.05" fill="#1F2A22"/>
+<ellipse id="Ellipse_4" cx="86.15" cy="67.25" rx="4.95" ry="6.05" fill="#1F2A22"/>
+<circle id="Ellipse_5" cx="54.525" cy="65.325" r="1.925" fill="white"/>
+<circle id="Ellipse_6" cx="86.425" cy="65.325" r="1.925" fill="white"/>
+<ellipse id="Ellipse_7" cx="41.6" cy="80.45" rx="6.6" ry="3.85" fill="#FF9FB0" fill-opacity="0.55"/>
+<ellipse id="Ellipse_8" cx="98.8" cy="80.45" rx="6.6" ry="3.85" fill="#FF9FB0" fill-opacity="0.55"/>
+<g id="Mulut" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M60.3 83.2C63.6 92 76.8 92 80.1 83.2" stroke-width="2.75" stroke-linecap="round" stroke="#1F2A22"/>
+</g>
+<circle id="Ellipse_9" cx="70.2" cy="122.8" r="15.4" fill="white" fill-opacity="0.92"/>
+<g id="Emblem">
+<path id="Vector_2" d="M70.2 116.2C71.6058 116.201 72.9746 116.651 74.1068 117.484C75.2391 118.317 76.0758 119.49 76.4949 120.832C76.914 122.174 76.8937 123.615 76.437 124.944C75.9802 126.274 75.1109 127.423 73.9556 128.224C72.8003 129.025 71.4194 129.436 70.0141 129.398C68.6089 129.359 67.2526 128.873 66.1429 128.01C65.0333 127.147 64.2282 125.952 63.845 124.599C63.4618 123.246 63.5205 121.807 64.0125 120.49" stroke-width="2.475" stroke-linecap="round" stroke="#2F7DD1"/>
+<path id="Vector_3" d="M62.775 116.2V121.15H67.725" stroke-width="2.475" stroke-linecap="round" stroke-linejoin="round" stroke="#2F7DD1"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_4" x1="70.2" y1="41.4" x2="70.2" y2="149.2" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7EB4EC"/>
+<stop offset="1" stop-color="#5A9FE6"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_4" x1="70.2" y1="21.6" x2="70.2" y2="48" gradientUnits="userSpaceOnUse">
+<stop stop-color="#6FA1D9"/>
+<stop offset="1" stop-color="#3F82CC"/>
+</linearGradient>
+<clipPath id="clip0_0_4">
+<rect width="24.2" height="11" fill="white" transform="translate(58.1 81)"/>
+</clipPath>
+</defs>
+</svg>

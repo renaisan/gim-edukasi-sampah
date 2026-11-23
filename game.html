@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#225134">
+  <title>Eco-Sorter STEM — Ruang Belajar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= ICON SPRITE ================= -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 48 48">
+    <path d="M22 43C12 43 7 35 8 25c7 1 13 6 15 14z" fill="#2F7D4F"/>
+    <path d="M25 43c0-13 5-21 15-24 1 13-5 22-15 24z" fill="#63B96F"/>
+    <path d="M23 43C15 37 13 28 16 19c7 4 11 12 8 20z" fill="#B4DD7C"/>
+  </symbol>
+  <symbol id="i-home" viewBox="0 0 24 24">
+    <path d="m3.5 10 8.5-6.5L20.5 10v9.5a1.5 1.5 0 0 1-1.5 1.5h-4.5v-6.5h-5V21H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-book" viewBox="0 0 24 24">
+    <rect x="4" y="3.5" width="16" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24">
+    <path d="M4 20v-5.5h4V20zM10 20V9.5h4V20zM16 20V4h4v16z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24">
+    <path d="M7 3h10v4.5a5 5 0 0 1-10 0z" fill="currentColor"/>
+    <path d="M10 12.5h4V16h3.5v4.5h-11V16H10z" fill="currentColor"/>
+    <path d="M7 5H4v2.2a3.2 3.2 0 0 0 3.2 3.2M17 5h3v2.2a3.2 3.2 0 0 1-3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24">
+    <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M14.5 8l4 4-4 4m4-4H9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24">
+    <rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="M8 3v4m8-4v4M3.5 10h17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9.3" fill="#F5C542" stroke="#D9A520" stroke-width="1.2"/>
+    <circle cx="12" cy="12" r="6.6" fill="none" stroke="#FFF0B8" stroke-width="1.3"/>
+    <path d="M12 15.5c-2 0-3.2-.8-3.2-2 0-1.3 1-1.8 3.2-2.3 1.7-.4 2.4-.8 2.4-1.6 0-.9-.9-1.4-2.4-1.4-1.2 0-2.1.4-2.6 1.2M12 6.8v1.2m0 7.5v1.2" fill="none" stroke="#B98510" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.9"/>
+    <path d="m16.2 16.2 4.3 4.3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24">
+    <path d="M5 12h13m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24">
+    <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24">
+    <path d="M12 20.3S4.7 15.7 3 11.5C1.7 8.2 4 5.2 7.4 5.2c2 0 3.6 1.1 4.6 2.7 1-1.6 2.6-2.7 4.6-2.7 3.4 0 5.7 3 4.4 6.3-1.7 4.2-9 8.8-9 8.8z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-star" viewBox="0 0 24 24">
+    <path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24">
+    <path d="M20 11a8 8 0 1 0 2 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+    <path d="M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="m8.2 12.2 2.5 2.5 5.1-5.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="currentColor"/>
+    <path d="m7.4 12.3 3 3 6.1-6.5" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24">
+    <path d="M9.2 18.2h5.6m-4.8 2.8h4M8.7 14.7a6 6 0 1 1 6.6 0c-.8.6-1.3 1.4-1.5 2.3h-3.6c-.2-.9-.7-1.7-1.5-2.3z" fill="#FFF3B0" stroke="#B58A14" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="M6.5 6.5l11 11m0-11-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="M12 7v5.2l3.2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-target" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24">
+    <path d="M12 22c4.2 0 7-3 7-7.2 0-5-4.8-6.4-3.8-12.8-4 1.9-7.2 6-7.2 10.1 0 1.8-.8 2.8-2 3.8 1 3.9 3 6.1 6 6.1z" fill="currentColor"/>
+    <path d="M12 21c1.8 0 3-1.4 3-3.3 0-2-1.8-2.8-1.4-5.5-1.8.9-3.2 2.7-3.2 4.5 0 .9-.4 1.3-.9 1.8.6 1.6 1.4 2.5 2.5 2.5z" fill="#FFD66B"/>
+  </symbol>
+  <symbol id="i-back" viewBox="0 0 24 24">
+    <path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-leaf-small" viewBox="0 0 24 24">
+    <path d="M20 4C10 5 4 10 4 18c6 0 13-4 16-14z" fill="currentColor"/>
+    <path d="M5 19c3-5 7-9 12-12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+  </symbol>
+  <symbol id="i-medal" viewBox="0 0 24 24">
+    <circle cx="12" cy="15" r="6" fill="currentColor"/>
+    <path d="m8 3 2 6m6-6-2 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24">
+    <rect x="4.5" y="10" width="15" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.9"/>
+    <path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24">
+    <path d="m12 2.5 2.4 6.6 6.6 2.4-6.6 2.4L12 20.5l-2.4-6.6L3 11.5l6.6-2.4z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-bin" viewBox="0 0 24 24">
+    <path d="M6 7h12l-1 13H7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M4.5 4.5h15M9 4.5V3h6v1.5M10 10v6m4-6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24">
+    <path d="M3 17l6-6 4 4 7-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15 7h5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-play" viewBox="0 0 24 24">
+    <path d="M7 5v14l12-7z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24">
+    <path d="M12 2.5 20 6v6.2c0 4.6-3.3 8-8 9.3-4.7-1.3-8-4.7-8-9.3V6z" fill="currentColor"/>
+    <path d="m8.5 12.2 2.4 2.4 4.6-4.9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<div class="app" id="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <button class="brand" id="brandHome" aria-label="Ke beranda">
+      <span class="brand-leaf"><svg width="36" height="36"><use href="#i-logo"/></svg></span>
+      <span class="brand-name">Eco-Sorter<em>STEM</em></span>
+    </button>
+
+    <nav class="side-nav" aria-label="Navigasi utama">
+      <button data-page="beranda"><svg width="18" height="18"><use href="#i-home"/></svg><span>Beranda</span></button>
+      <button data-page="ensiklopedia" class="active"><svg width="18" height="18"><use href="#i-book"/></svg><span>Ensiklopedia</span></button>
+      <button data-page="statistik"><svg width="18" height="18"><use href="#i-chart"/></svg><span>Statistik</span></button>
+      <button data-page="pencapaian"><svg width="18" height="18" class="gold"><use href="#i-trophy"/></svg><span>Pencapaian</span></button>
+    </nav>
+
+    <div class="level-card" id="sideLevel"></div>
+
+    <button class="logout" id="btnLogout"><svg width="17" height="17"><use href="#i-logout"/></svg> Keluar</button>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <header class="topbar">
+      <div class="breadcrumb">Ruang belajar <span>/</span> <b id="crumb">Ensiklopedia</b></div>
+      <div class="top-actions">
+        <span class="pill pill-coin"><svg width="15" height="15"><use href="#i-coin"/></svg> <b id="poinTop">0</b></span>
+        <div class="school-profile">
+          <!-- Ganti src di bawah ini dengan path logo sekolah Anda (contoh: assets/logo-sekolah.png) -->
+          <img id="schoolLogo" class="school-logo" src="yadikuy.png" alt="Logo Sekolah" title="Logo Sekolah SMK Yadika Soreang">
+          <div class="school-info">
+            <strong>STEM</strong>
+            <small>SMK Yadika Soreang</small>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= BERANDA ================= -->
+    <section class="page" id="page-beranda" hidden>
+      <div class="hero hero-home">
+        <div class="hero-copy">
+          <span class="hero-tag"><svg width="12" height="12"><use href="#i-sparkle"/></svg> Ruang belajar</span>
+          <h1>Halo! Siap<br>menyelamatkan bumi?</h1>
+          <p>Selesaikan misi memilah sampah dan jadilah Penjaga Bumi sejati.</p>
+          <button class="btn-dark" id="btnLanjutBelajar">Lanjut belajar <svg width="15" height="15"><use href="#i-arrow"/></svg></button>
+        </div>
+        <div class="hero-art" id="artHome"></div>
+        <span class="hero-glow"></span>
+      </div>
+
+      <div class="section-head">
+        <h2>Misi petualangan</h2>
+        <span class="section-note">3 level</span>
+      </div>
+      <div class="mission-grid" id="missionGrid"></div>
+
+      <div class="tip-banner">
+        <span class="tip-ico"><svg width="18" height="18"><use href="#i-bulb"/></svg></span>
+        <p><strong>Tahukah kamu?</strong> Memilah sampah sejak kecil bisa menyelamatkan ribuan pohon setiap tahun!</p>
+        <button class="btn-dark sm" id="btnCobaKuisHome">Coba kuis <svg width="14" height="14"><use href="#i-arrow"/></svg></button>
+      </div>
+    </section>
+
+    <!-- ================= ENSIKLOPEDIA ================= -->
+    <section class="page" id="page-ensiklopedia">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="hero-tag"><svg width="12" height="12"><use href="#i-leaf-small"/></svg> Ensiklopedia sampah</span>
+          <h1>Sampah punya tempat.<br>Yuk, kenali jenisnya!</h1>
+          <p>Mulai dari hal kecil untuk bumi yang lebih baik.</p>
+        </div>
+        <div class="hero-art" id="artEco"></div>
+        <span class="hero-glow"></span>
+      </div>
+
+      <div class="section-head">
+        <h2>Ensiklopedia sampah</h2>
+        <span class="section-note">4 kategori · 20+ contoh</span>
+      </div>
+      <div class="filter-row">
+        <label class="search-box">
+          <svg width="15" height="15"><use href="#i-search"/></svg>
+          <input id="searchInput" type="search" placeholder="Cari jenis sampah..." autocomplete="off">
+        </label>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="eco-grid" id="ecoGrid"></div>
+
+      <div class="tip-banner">
+        <span class="tip-ico"><svg width="18" height="18"><use href="#i-bulb"/></svg></span>
+        <p><strong>Tahukah kamu?</strong> Sampah organik bisa diolah menjadi kompos!</p>
+      </div>
+    </section>
+
+    <!-- ================= STATISTIK ================= -->
+    <section class="page" id="page-statistik" hidden>
+      <div class="page-head">
+        <h1>Statistik belajarmu</h1>
+        <p>Langkah kecilmu, dampak besar untuk bumi.</p>
+      </div>
+
+      <div class="stat-hero">
+        <h2>Lihat, kamu makin jago!</h2>
+        <p>Terus belajar agar jadi Penjaga Bumi sejati.</p>
+        <span class="stat-hero-spark s1"></span>
+        <span class="stat-hero-spark s2"></span>
+      </div>
+
+      <div class="stat-cards" id="statCards"></div>
+
+      <div class="stat-grid">
+        <div class="card chart-card">
+          <div class="card-head">
+            <h3>Aktivitas mingguan</h3>
+            <small>Total <b id="chartTotal">120</b> sampah</small>
+          </div>
+          <div class="chart" id="activityBars"></div>
+        </div>
+        <div class="card donut-card">
+          <div class="card-head"><h3>Jenis sampah</h3></div>
+          <div class="donut-wrap" id="donutChart"></div>
+          <div class="legend" id="donutLegend"></div>
+        </div>
+      </div>
+
+      <div class="ach-banner">
+        <span class="ach-ava" id="achAva"></span>
+        <div class="ach-copy">
+          <strong id="achText">Hebat! Akurasimu mencapai 95%</strong>
+          <p>Terus belajar agar kamu makin jago memilah!</p>
+        </div>
+        <button class="btn-dark sm" id="achMore">Lainnya <svg width="14" height="14"><use href="#i-arrow"/></svg></button>
+      </div>
+    </section>
+
+    <!-- ================= PENCAPAIAN ================= -->
+    <section class="page" id="page-pencapaian" hidden>
+      <div class="badge-hero">
+        <div class="badge-hero-copy">
+          <h1>Aksi kecil, perubahan besar!</h1>
+          <p>Setiap langkah berarti untuk bumi.</p>
+          <div class="level-progress" id="levelProgress"></div>
+        </div>
+        <div class="badge-hero-art" id="artBadge"></div>
+      </div>
+
+      <div class="section-head">
+        <h2>Koleksi lencana</h2>
+        <span class="section-note" id="badgeCount">3 / 9</span>
+        <div class="head-chips">
+          <button class="chip active" data-badge-filter="semua">Semua</button>
+          <button class="chip" data-badge-filter="terkunci">Terkunci</button>
+        </div>
+      </div>
+      <div class="badge-grid" id="badgeGrid"></div>
+
+      <div class="mission-banner" id="missionBanner"></div>
+    </section>
+
+    <!-- ================= KUIS ================= -->
+    <section class="page" id="page-kuis" hidden>
+      <div class="page-head">
+        <h1>Kuis harian</h1>
+        <p>Jawab pertanyaan singkat dan dapatkan poin!</p>
+      </div>
+      <div class="quiz-card" id="quizCard"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= GAME (full screen) ================= -->
+<div id="gameRoot" hidden></div>
+
+<div id="modalRoot"></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="140" height="160" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Ilustrasi">
+<circle id="Ellipse" cx="70" cy="90" r="70" fill="white" fill-opacity="0.4"/>
+<g id="Ilustrasi tong">
+<ellipse id="Ellipse_2" cx="70.2" cy="150.3" rx="55" ry="7.7" fill="#1F3A28" fill-opacity="0.16"/>
+<rect id="Rectangle" x="21.8" y="41.4" width="96.8" height="107.8" rx="17.6" fill="url(#paint0_linear_0_130)"/>
+<rect id="Rectangle_2" x="28.4" y="52.4" width="8.8" height="83.6" rx="4.4" fill="white" fill-opacity="0.22"/>
+<rect id="Rectangle_3" x="13" y="21.6" width="114.4" height="26.4" rx="12.1" fill="url(#paint1_linear_0_130)"/>
+<rect id="Rectangle_4" x="21.8" y="26" width="96.8" height="4.4" rx="2.2" fill="white" fill-opacity="0.3"/>
+<rect id="Rectangle_5" x="52.6" y="6.2" width="35.2" height="19.8" rx="8.8" fill="#3F9A59"/>
+<ellipse id="Ellipse_3" cx="54.25" cy="67.25" rx="4.95" ry="6.05" fill="#1F2A22"/>
+<ellipse id="Ellipse_4" cx="86.15" cy="67.25" rx="4.95" ry="6.05" fill="#1F2A22"/>
+<circle id="Ellipse_5" cx="54.525" cy="65.325" r="1.925" fill="white"/>
+<circle id="Ellipse_6" cx="86.425" cy="65.325" r="1.925" fill="white"/>
+<ellipse id="Ellipse_7" cx="41.6" cy="80.45" rx="6.6" ry="3.85" fill="#FF9FB0" fill-opacity="0.55"/>
+<ellipse id="Ellipse_8" cx="98.8" cy="80.45" rx="6.6" ry="3.85" fill="#FF9FB0" fill-opacity="0.55"/>
+<g id="Mulut" clip-path="url(#clip0_0_130)">
+<path id="Vector" d="M58.65 82.925H81.75C81.75 92.55 76.9375 95.4375 70.2 95.4375C63.4625 95.4375 58.65 92.55 58.65 82.925Z" fill="#2A1A1A"/>
+<path id="Vector_2" d="M70.2 96.4C72.8579 96.4 75.0125 95.1072 75.0125 93.5125C75.0125 91.9178 72.8579 90.625 70.2 90.625C67.5421 90.625 65.3875 91.9178 65.3875 93.5125C65.3875 95.1072 67.5421 96.4 70.2 96.4Z" fill="#F28B9B"/>
+</g>
+<circle id="Ellipse_9" cx="70.2" cy="122.8" r="15.4" fill="white" fill-opacity="0.92"/>
+<g id="Emblem">
+<path id="Vector_3" d="M64.425 128.575C64.425 121.15 69.375 117.025 75.975 117.025C75.975 124.45 71.85 128.575 65.25 128.575H64.425Z" fill="#3F9A59"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_130" x1="70.2" y1="41.4" x2="70.2" y2="149.2" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7AC48F"/>
+<stop offset="1" stop-color="#55B36F"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_130" x1="70.2" y1="21.6" x2="70.2" y2="48" gradientUnits="userSpaceOnUse">
+<stop stop-color="#6FB383"/>
+<stop offset="1" stop-color="#3F9A59"/>
+</linearGradient>
+<clipPath id="clip0_0_130">
+<rect width="28.6" height="15.4" fill="white" transform="translate(55.9 81)"/>
+</clipPath>
+</defs>
+</svg>

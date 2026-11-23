@@ -1,0 +1,41 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="140" height="160" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Ilustrasi">
+<circle id="Ellipse" cx="70" cy="90" r="70" fill="white" fill-opacity="0.4"/>
+<g id="Ilustrasi tong">
+<ellipse id="Ellipse_2" cx="70.2" cy="150.3" rx="55" ry="7.7" fill="#1F3A28" fill-opacity="0.16"/>
+<rect id="Rectangle" x="21.8" y="41.4" width="96.8" height="107.8" rx="17.6" fill="url(#paint0_linear_0_166)"/>
+<rect id="Rectangle_2" x="28.4" y="52.4" width="8.8" height="83.6" rx="4.4" fill="white" fill-opacity="0.22"/>
+<rect id="Rectangle_3" x="13" y="21.6" width="114.4" height="26.4" rx="12.1" fill="url(#paint1_linear_0_166)"/>
+<rect id="Rectangle_4" x="21.8" y="26" width="96.8" height="4.4" rx="2.2" fill="white" fill-opacity="0.3"/>
+<rect id="Rectangle_5" x="52.6" y="6.2" width="35.2" height="19.8" rx="8.8" fill="#CF4F38"/>
+<ellipse id="Ellipse_3" cx="54.25" cy="67.25" rx="4.95" ry="6.05" fill="#1F2A22"/>
+<ellipse id="Ellipse_4" cx="86.15" cy="67.25" rx="4.95" ry="6.05" fill="#1F2A22"/>
+<circle id="Ellipse_5" cx="54.525" cy="65.325" r="1.925" fill="white"/>
+<circle id="Ellipse_6" cx="86.425" cy="65.325" r="1.925" fill="white"/>
+<ellipse id="Ellipse_7" cx="41.6" cy="80.45" rx="6.6" ry="3.85" fill="#FF9FB0" fill-opacity="0.55"/>
+<ellipse id="Ellipse_8" cx="98.8" cy="80.45" rx="6.6" ry="3.85" fill="#FF9FB0" fill-opacity="0.55"/>
+<g id="Mulut" clip-path="url(#clip0_0_166)">
+<path id="Vector" d="M60.3 83.2C63.6 92 76.8 92 80.1 83.2" stroke-width="2.75" stroke-linecap="round" stroke="#1F2A22"/>
+</g>
+<circle id="Ellipse_9" cx="70.2" cy="122.8" r="15.4" fill="white" fill-opacity="0.92"/>
+<g id="Emblem">
+<path id="Vector_2" d="M70.2 115.375L78.45 130.225H61.95L70.2 115.375Z" fill="#CF4F38"/>
+<path id="Vector_3" d="M71.025 121.15C71.025 120.694 70.6556 120.325 70.2 120.325C69.7444 120.325 69.375 120.694 69.375 121.15V124.45C69.375 124.906 69.7444 125.275 70.2 125.275C70.6556 125.275 71.025 124.906 71.025 124.45V121.15Z" fill="white"/>
+<path id="Vector_4" d="M70.2 128.823C70.7923 128.823 71.2725 128.342 71.2725 127.75C71.2725 127.158 70.7923 126.678 70.2 126.678C69.6077 126.678 69.1275 127.158 69.1275 127.75C69.1275 128.342 69.6077 128.823 70.2 128.823Z" fill="white"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_166" x1="70.2" y1="41.4" x2="70.2" y2="149.2" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EE8876"/>
+<stop offset="1" stop-color="#E9674F"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_166" x1="70.2" y1="21.6" x2="70.2" y2="48" gradientUnits="userSpaceOnUse">
+<stop stop-color="#DB7B6A"/>
+<stop offset="1" stop-color="#CF4F38"/>
+</linearGradient>
+<clipPath id="clip0_0_166">
+<rect width="24.2" height="11" fill="white" transform="translate(58.1 81)"/>
+</clipPath>
+</defs>
+</svg>
