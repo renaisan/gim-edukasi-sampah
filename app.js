@@ -82,53 +82,489 @@ const CATEGORY_ART = {
 };
 const binArt = (type) => `<svg viewBox="0 0 130 136" aria-hidden="true">${binSvg(type)}</svg>`;
 
+/* ---------------- Sound Effects (Web Audio API) ---------------- */
+const soundState = {
+  enabled: true,
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+  },
+  toggle() {
+    this.enabled = !this.enabled;
+    const btn = document.getElementById("soundToggle");
+    if (btn) {
+      btn.classList.toggle("muted", !this.enabled);
+      btn.innerHTML = ico(this.enabled ? "volume" : "volume-mute", 16);
+    }
+    if (this.enabled) this.play("click");
+    return this.enabled;
+  },
+  play(type) {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      if (type === "click") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(540, now);
+        osc.frequency.exponentialRampToValueAtTime(820, now + 0.05);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.start(now); osc.stop(now + 0.05);
+      } else if (type === "correct") {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.08);
+        osc.frequency.setValueAtTime(783.99, now + 0.16);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.start(now); osc.stop(now + 0.28);
+      } else if (type === "wrong") {
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.setValueAtTime(174.61, now + 0.12);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.start(now); osc.stop(now + 0.24);
+      } else if (type === "coin") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+        osc.start(now); osc.stop(now + 0.16);
+      }
+    } catch (e) {}
+  }
+};
+
 /* ---------------- Scenery illustrations ---------------- */
-function heroArt() {
-  return `<svg viewBox="0 0 340 200" aria-hidden="true">
-    <circle cx="252" cy="96" r="82" fill="#EAF8CE"/>
-    <ellipse cx="176" cy="177" rx="152" ry="15" fill="#7FB86B" opacity=".35"/>
-    <ellipse cx="176" cy="169" rx="138" ry="13" fill="#8FCB77"/>
-    ${binSvg("organik", { x: 172, y: 34, s: .95 })}
-    <g transform="translate(96 82)">
-      <rect x="8" y="0" width="12" height="9" rx="2" fill="#2F8FC4"/>
-      <path d="M5 9h18l4 12v42a6 6 0 0 1-6 6H7a6 6 0 0 1-6-6V21z" fill="#BDEBFA" stroke="#2F7FA8" stroke-width="2.6"/>
-      <rect x="1" y="30" width="26" height="14" fill="#6FC7E4"/>
+function homeHeroArt() {
+  return `<svg viewBox="0 0 380 200" aria-hidden="true" class="hero-svg-main">
+    <defs>
+      <linearGradient id="earthGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#80D8F8"/>
+        <stop offset="100%" stop-color="#46A7E8"/>
+      </linearGradient>
+      <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#E5B270"/>
+        <stop offset="100%" stop-color="#C78E4B"/>
+      </linearGradient>
+    </defs>
+    <!-- Hill backdrop -->
+    <ellipse cx="200" cy="188" rx="175" ry="24" fill="#6EA858" opacity=".35"/>
+    <ellipse cx="200" cy="180" rx="160" ry="20" fill="#7EC664"/>
+    <ellipse cx="200" cy="176" rx="145" ry="16" fill="#92D677"/>
+
+    <!-- Smiling Earth Mascot in Center -->
+    <g transform="translate(175 108)">
+      <!-- Earth Body -->
+      <circle cx="0" cy="0" r="54" fill="url(#earthGrad)" stroke="#3288C2" stroke-width="2.5"/>
+      <!-- Continents -->
+      <path d="M-40 -20 C-30 -35 -10 -40 5 -38 C15 -35 25 -20 15 -5 C5 5 -15 -2 -25 5 C-35 8 -42 0 -40 -20 Z" fill="#65BE47"/>
+      <path d="M-30 20 C-20 15 5 20 12 30 C15 42 0 52 -20 48 C-35 45 -38 32 -30 20 Z" fill="#65BE47"/>
+      <path d="M20 -15 C35 -20 45 -10 42 10 C38 25 22 18 20 -15 Z" fill="#65BE47"/>
+      <!-- Smiling Face -->
+      <ellipse cx="-14" cy="-5" rx="3.5" ry="5.5" fill="#173522"/>
+      <ellipse cx="14" cy="-5" rx="3.5" ry="5.5" fill="#173522"/>
+      <circle cx="-15" cy="-7" r="1.5" fill="#fff"/>
+      <circle cx="13" cy="-7" r="1.5" fill="#fff"/>
+      <!-- Rosy Cheeks -->
+      <ellipse cx="-23" cy="4" rx="5.5" ry="3.5" fill="#FF8D9D" opacity=".7"/>
+      <ellipse cx="23" cy="4" rx="5.5" ry="3.5" fill="#FF8D9D" opacity=".7"/>
+      <!-- Smile Mouth -->
+      <path d="M-8 6 Q0 16 8 6 Z" fill="#942626"/>
+      <path d="M-6 8 Q0 15 6 8" stroke="#FF6B7A" stroke-width="2" fill="none"/>
     </g>
-    <g transform="translate(62 106)">
-      <rect x="4" y="4" width="28" height="48" rx="6" fill="#E2594F" stroke="#7A2A22" stroke-width="2.6"/>
-      <ellipse cx="18" cy="5" rx="14" ry="4" fill="#DDE6E8"/>
-      <rect x="4" y="20" width="28" height="15" fill="#fff"/>
+
+    <!-- Green Recycling Bin (Left) -->
+    ${binSvg("organik", { x: 70, y: 76, s: .78 })}
+
+    <!-- Blue Recycling Bin (Right-Center) -->
+    ${binSvg("daur", { x: 185, y: 82, s: .78 })}
+
+    <!-- Wooden Sign "Jaga Lingkungan Kita!" -->
+    <g transform="translate(262 76)">
+      <!-- Posts -->
+      <rect x="16" y="32" width="7" height="60" rx="3" fill="#8C5C30" stroke="#663E1A" stroke-width="1.5"/>
+      <rect x="52" y="32" width="7" height="60" rx="3" fill="#8C5C30" stroke="#663E1A" stroke-width="1.5"/>
+      <!-- Board -->
+      <rect x="0" y="8" width="76" height="42" rx="7" fill="url(#woodGrad)" stroke="#7A4C22" stroke-width="2"/>
+      <line x1="4" y1="22" x2="72" y2="22" stroke="#B87E3E" stroke-width="1.5"/>
+      <line x1="4" y1="36" x2="72" y2="36" stroke="#B87E3E" stroke-width="1.5"/>
+      <text x="38" y="22" font-family="'Baloo 2', sans-serif" font-weight="800" font-size="9" fill="#542F10" text-anchor="middle">Jaga</text>
+      <text x="38" y="33" font-family="'Baloo 2', sans-serif" font-weight="800" font-size="8.5" fill="#542F10" text-anchor="middle">Lingkungan</text>
+      <text x="38" y="44" font-family="'Baloo 2', sans-serif" font-weight="800" font-size="9" fill="#542F10" text-anchor="middle">Kita!</text>
+      <!-- Tufts of grass around posts -->
+      <path d="M12 88 Q14 78 20 84 Q22 75 26 88 Z" fill="#4FAE55"/>
+      <path d="M48 88 Q50 78 56 84 Q58 75 62 88 Z" fill="#4FAE55"/>
     </g>
-    <path d="M36 128c8-10 18-15 28-14-3 10-12 17-25 18z" fill="#8DD47D" stroke="#3E8B4A" stroke-width="2.2"/>
-    <path d="M48 148c5-12 13-20 24-23 1 11-7 20-19 25z" fill="#B4DD7C" stroke="#3E8B4A" stroke-width="2.2"/>
-    <g fill="#fff" opacity=".9">
-      <path d="M292 58l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
-      <path d="M78 48l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+
+    <!-- Daisies & Sparkles -->
+    <g transform="translate(145 174)">
+      <circle cx="0" cy="0" r="6" fill="#fff"/>
+      <circle cx="0" cy="0" r="2.5" fill="#F5C542"/>
+    </g>
+    <g transform="translate(235 178)">
+      <circle cx="0" cy="0" r="7" fill="#fff"/>
+      <circle cx="0" cy="0" r="3" fill="#F5C542"/>
+    </g>
+    <g transform="translate(55 170)">
+      <circle cx="0" cy="0" r="5" fill="#fff"/>
+      <circle cx="0" cy="0" r="2" fill="#F5C542"/>
+    </g>
+    <g fill="#fff" opacity=".95">
+      <path d="M120 38l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
+      <path d="M260 32l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M340 54l2 4 4 2-4 2-2 4-2-4-4-2 4-2z"/>
     </g>
   </svg>`;
 }
 
-function trophyArt() {
-  return `<svg viewBox="0 0 300 190" aria-hidden="true">
-    <circle cx="150" cy="96" r="84" fill="#F1F9DC" opacity=".85"/>
-    <ellipse cx="150" cy="168" rx="108" ry="13" fill="#9BC97C" opacity=".5"/>
-    <g transform="translate(58 30)">
-      ${binSvg("organik", { x: 0, y: 0, s: 1.02 })}
-      <g transform="translate(42 6)">
-        <path d="M0 0c-9 4-13 11-13 18 0 8 6 13 13 13s13-5 13-13c0-7-4-14-13-18z" fill="#6BBE7A"/>
-        <path d="M0 6v20M0 16l-6-5M0 20l6-5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9" fill="none"/>
+function badgeHeroArt() {
+  return `<svg viewBox="0 0 340 200" aria-hidden="true" class="hero-svg-badge">
+    <defs>
+      <linearGradient id="goldCup" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#FFE779"/>
+        <stop offset="40%" stop-color="#F7C434"/>
+        <stop offset="100%" stop-color="#D99B16"/>
+      </linearGradient>
+      <linearGradient id="baseGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#A56E28"/>
+        <stop offset="100%" stop-color="#6F4512"/>
+      </linearGradient>
+    </defs>
+    <!-- Hill mound -->
+    <ellipse cx="170" cy="186" rx="145" ry="18" fill="#6EA858" opacity=".35"/>
+    <ellipse cx="170" cy="178" rx="130" ry="15" fill="#84CF68"/>
+    <ellipse cx="170" cy="174" rx="115" ry="12" fill="#99DF7D"/>
+
+    <!-- Trophy Group -->
+    <g transform="translate(170 102)">
+      <!-- Pedestal Base -->
+      <polygon points="-32,60 32,60 36,70 -36,70" fill="url(#baseGrad)" stroke="#52320A" stroke-width="1.5"/>
+      <rect x="-24" y="44" width="48" height="16" rx="3" fill="#D49B24" stroke="#8A5A0A" stroke-width="1.5"/>
+      <!-- Stem -->
+      <path d="M-8 26 L8 26 L12 44 L-12 44 Z" fill="#F0BC2E" stroke="#9A690C" stroke-width="1.5"/>
+      <!-- Handles -->
+      <path d="M-36 -12 C-55 -12 -55 22 -30 22" fill="none" stroke="#F5C538" stroke-width="7" stroke-linecap="round"/>
+      <path d="M-36 -12 C-55 -12 -55 22 -30 22" fill="none" stroke="#9A690C" stroke-width="2" stroke-linecap="round"/>
+      <path d="M36 -12 C55 -12 55 22 30 22" fill="none" stroke="#F5C538" stroke-width="7" stroke-linecap="round"/>
+      <path d="M36 -12 C55 -12 55 22 30 22" fill="none" stroke="#9A690C" stroke-width="2" stroke-linecap="round"/>
+      <!-- Cup Body -->
+      <path d="M-38 -34 H38 C38 12 24 28 0 28 C-24 28 -38 12 -38 -34 Z" fill="url(#goldCup)" stroke="#8A5A0A" stroke-width="2.5"/>
+      <ellipse cx="0" cy="-34" rx="38" ry="7" fill="#FFF199" stroke="#8A5A0A" stroke-width="2"/>
+      <!-- Star on Trophy -->
+      <path d="M0 -15 L2.5 -7 H10 L4 -2 L6.5 6 L0 1.5 L-6.5 6 L-4 -2 L-10 -7 H-2.5 Z" fill="#FFF8C6" stroke="#C4880E" stroke-width="1.2"/>
+
+      <!-- Laurel Leaves on Sides -->
+      <g stroke="#3D8A46" stroke-width="1.5" fill="#58BF65">
+        <ellipse cx="-44" cy="38" rx="8" ry="5" transform="rotate(-30 -44 38)"/>
+        <ellipse cx="-52" cy="22" rx="8" ry="5" transform="rotate(-50 -52 22)"/>
+        <ellipse cx="-52" cy="5" rx="8" ry="5" transform="rotate(-70 -52 5)"/>
+        <ellipse cx="44" cy="38" rx="8" ry="5" transform="rotate(30 44 38)"/>
+        <ellipse cx="52" cy="22" rx="8" ry="5" transform="rotate(50 52 22)"/>
+        <ellipse cx="52" cy="5" rx="8" ry="5" transform="rotate(70 52 5)"/>
       </g>
     </g>
-    <g transform="translate(196 84)">
-      <rect x="0" y="28" width="15" height="28" rx="4" fill="#A8D98E"/>
-      <rect x="20" y="14" width="15" height="42" rx="4" fill="#7FC56E"/>
-      <rect x="40" y="0" width="15" height="56" rx="4" fill="#4E9E58"/>
-      <path d="M4 22c14-4 28-16 44-24" fill="none" stroke="#2E7D4F" stroke-width="4" stroke-linecap="round"/>
-      <path d="M48 -2l-10 1 5-9z" fill="#2E7D4F"/>
+
+    <!-- Daisies & Sparkles -->
+    <g transform="translate(90 172)"><circle cx="0" cy="0" r="7" fill="#fff"/><circle cx="0" cy="0" r="3" fill="#F5C542"/></g>
+    <g transform="translate(250 174)"><circle cx="0" cy="0" r="8" fill="#fff"/><circle cx="0" cy="0" r="3.5" fill="#F5C542"/></g>
+    <g fill="#FFF" opacity=".95">
+      <path d="M85 45l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M255 40l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M170 20l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
     </g>
-    <g fill="#fff" opacity=".95">
-      <path d="M232 40l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
-      <path d="M92 48l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+  </svg>`;
+}
+
+function statHeroArt() {
+  return `<svg viewBox="0 0 340 200" aria-hidden="true" class="hero-svg-stat">
+    <defs>
+      <linearGradient id="earthGradS" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#80D8F8"/>
+        <stop offset="100%" stop-color="#46A7E8"/>
+      </linearGradient>
+    </defs>
+    <!-- Hill mound -->
+    <ellipse cx="170" cy="186" rx="145" ry="18" fill="#6EA858" opacity=".35"/>
+    <ellipse cx="170" cy="178" rx="130" ry="15" fill="#84CF68"/>
+    <ellipse cx="170" cy="174" rx="115" ry="12" fill="#99DF7D"/>
+
+    <!-- Smiling Earth on Left -->
+    <g transform="translate(115 110)">
+      <circle cx="0" cy="0" r="50" fill="url(#earthGradS)" stroke="#3288C2" stroke-width="2.5"/>
+      <path d="M-36 -18 C-25 -32 -8 -36 5 -34 C12 -30 22 -18 12 -5 C4 5 -12 -2 -22 5 C-32 8 -38 0 -36 -18 Z" fill="#65BE47"/>
+      <path d="M-26 18 C-18 12 4 18 10 26 C12 36 0 46 -18 42 C-32 40 -34 28 -26 18 Z" fill="#65BE47"/>
+      <path d="M18 -12 C30 -18 40 -8 36 8 C32 20 18 14 18 -12 Z" fill="#65BE47"/>
+      <!-- Eyes & Smile -->
+      <ellipse cx="-12" cy="-4" rx="3" ry="5" fill="#173522"/>
+      <ellipse cx="12" cy="-4" rx="3" ry="5" fill="#173522"/>
+      <circle cx="-13" cy="-6" r="1.3" fill="#fff"/>
+      <circle cx="11" cy="-6" r="1.3" fill="#fff"/>
+      <ellipse cx="-20" cy="4" rx="5" ry="3" fill="#FF8D9D" opacity=".7"/>
+      <ellipse cx="20" cy="4" rx="5" ry="3" fill="#FF8D9D" opacity=".7"/>
+      <path d="M-7 6 Q0 15 7 6 Z" fill="#942626"/>
+    </g>
+
+    <!-- 3D Rising Bar Chart on Right -->
+    <g transform="translate(195 70)">
+      <!-- Bar 1 (Low) -->
+      <rect x="0" y="56" width="18" height="38" rx="4" fill="#A4DE87" stroke="#3D8A46" stroke-width="1.8"/>
+      <!-- Bar 2 (Medium) -->
+      <rect x="24" y="32" width="18" height="62" rx="4" fill="#6EC776" stroke="#3D8A46" stroke-width="1.8"/>
+      <!-- Bar 3 (High) -->
+      <rect x="48" y="8" width="18" height="86" rx="4" fill="#3D9E4E" stroke="#256B32" stroke-width="1.8"/>
+      <!-- Upward Trend Arrow -->
+      <path d="M-6 64 Q24 24 64 6" fill="none" stroke="#225134" stroke-width="4.5" stroke-linecap="round"/>
+      <polygon points="64,-4 76,8 60,14" fill="#225134"/>
+    </g>
+
+    <!-- Daisies & Sparkles -->
+    <g transform="translate(60 174)"><circle cx="0" cy="0" r="7" fill="#fff"/><circle cx="0" cy="0" r="3" fill="#F5C542"/></g>
+    <g transform="translate(285 174)"><circle cx="0" cy="0" r="7" fill="#fff"/><circle cx="0" cy="0" r="3" fill="#F5C542"/></g>
+    <g fill="#FFF" opacity=".95">
+      <path d="M70 45l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M295 40l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+    </g>
+  </svg>`;
+}
+
+function ecoHeroArt() {
+  return `<svg viewBox="0 0 340 200" aria-hidden="true" class="hero-svg-eco">
+    <!-- Hill mound -->
+    <ellipse cx="170" cy="186" rx="145" ry="18" fill="#6EA858" opacity=".35"/>
+    <ellipse cx="170" cy="178" rx="130" ry="15" fill="#84CF68"/>
+    <ellipse cx="170" cy="174" rx="115" ry="12" fill="#99DF7D"/>
+
+    <!-- Green Smiling Recycling Bin Mascot -->
+    <g transform="translate(135 62)">
+      ${binSvg("organik", { x: 0, y: 0, s: 1.05 })}
+      <!-- Large Leaf Held in Hand -->
+      <g transform="translate(-16 38) rotate(-22)">
+        <path d="M0 45 C15 35 25 15 20 0 C5 10 -5 30 0 45 Z" fill="#7FD656" stroke="#2E7A34" stroke-width="2"/>
+        <line x1="0" y1="45" x2="16" y2="6" stroke="#2E7A34" stroke-width="2"/>
+      </g>
+    </g>
+
+    <!-- Daisies & Sparkles -->
+    <g transform="translate(75 172)"><circle cx="0" cy="0" r="7" fill="#fff"/><circle cx="0" cy="0" r="3" fill="#F5C542"/></g>
+    <g transform="translate(265 174)"><circle cx="0" cy="0" r="8" fill="#fff"/><circle cx="0" cy="0" r="3.5" fill="#F5C542"/></g>
+    <g fill="#FFF" opacity=".95">
+      <path d="M60 45l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M285 45l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M170 20l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
+    </g>
+  </svg>`;
+}
+
+/* ---------------- Mission Thumbnails (2D Illustrations) ---------------- */
+function missionThumbnail(id) {
+  if (id === 1) {
+    // Level 1: Taman Sekolah (School building with bell tower & trees)
+    return `<svg viewBox="0 0 280 130" preserveAspectRatio="xMidYMid slice" class="m-thumb-svg">
+      <rect width="280" height="130" fill="#E6F6FD"/>
+      <!-- Hills & Grass -->
+      <ellipse cx="140" cy="170" rx="170" ry="60" fill="#7DC667"/>
+      <ellipse cx="140" cy="155" rx="150" ry="40" fill="#93D67D"/>
+      <!-- Trees on sides -->
+      <g transform="translate(25 45)">
+        <rect x="18" y="30" width="8" height="30" fill="#754722"/>
+        <circle cx="22" cy="22" r="24" fill="#4FAE55"/>
+        <circle cx="16" cy="16" r="16" fill="#69C970"/>
+      </g>
+      <g transform="translate(210 45)">
+        <rect x="18" y="30" width="8" height="30" fill="#754722"/>
+        <circle cx="22" cy="22" r="24" fill="#4FAE55"/>
+        <circle cx="28" cy="16" r="16" fill="#69C970"/>
+      </g>
+      <!-- School Building -->
+      <g transform="translate(90 32)">
+        <!-- Wall -->
+        <rect x="0" y="24" width="100" height="46" rx="3" fill="#FFF0C2" stroke="#D19E45" stroke-width="1.8"/>
+        <!-- Main Pitched Roof -->
+        <polygon points="-8,24 50,-4 108,24" fill="#E86148" stroke="#AD331D" stroke-width="2"/>
+        <!-- Bell / Clock Tower -->
+        <rect x="36" y="-22" width="28" height="22" fill="#FFF0C2" stroke="#D19E45" stroke-width="1.5"/>
+        <polygon points="32,-22 50,-38 68,-22" fill="#E86148" stroke="#AD331D" stroke-width="1.8"/>
+        <!-- Clock Face -->
+        <circle cx="50" cy="-11" r="6" fill="#fff" stroke="#D19E45" stroke-width="1.2"/>
+        <line x1="50" y1="-11" x2="50" y2="-14" stroke="#523512" stroke-width="1.2"/>
+        <line x1="50" y1="-11" x2="53" y2="-11" stroke="#523512" stroke-width="1.2"/>
+        <!-- Entrance Door -->
+        <path d="M40 70 V48 A10 10 0 0 1 60 48 V70 Z" fill="#688EA8" stroke="#3A5C74" stroke-width="1.5"/>
+        <!-- Windows -->
+        <rect x="12" y="36" width="16" height="18" rx="2" fill="#9CE2F7" stroke="#3A5C74" stroke-width="1.2"/>
+        <rect x="72" y="36" width="16" height="18" rx="2" fill="#9CE2F7" stroke="#3A5C74" stroke-width="1.2"/>
+      </g>
+      <!-- Pathway -->
+      <polygon points="130,102 150,102 170,130 110,130" fill="#E2BA84"/>
+      <!-- Daisies -->
+      <circle cx="70" cy="115" r="3.5" fill="#fff"/><circle cx="70" cy="115" r="1.5" fill="#F5C542"/>
+      <circle cx="210" cy="118" r="3.5" fill="#fff"/><circle cx="210" cy="118" r="1.5" fill="#F5C542"/>
+    </svg>`;
+  } else if (id === 2) {
+    // Level 2: Kantin Sekolah (Playground slide / canteen pavilion & picnic lawn)
+    return `<svg viewBox="0 0 280 130" preserveAspectRatio="xMidYMid slice" class="m-thumb-svg">
+      <rect width="280" height="130" fill="#FDF3E3"/>
+      <ellipse cx="140" cy="170" rx="170" ry="60" fill="#7DC667"/>
+      <ellipse cx="140" cy="155" rx="150" ry="40" fill="#93D67D"/>
+      <!-- Bushes -->
+      <circle cx="35" cy="85" r="22" fill="#4FAE55"/>
+      <circle cx="55" cy="88" r="18" fill="#65BE47"/>
+      <circle cx="235" cy="85" r="22" fill="#4FAE55"/>
+      <circle cx="255" cy="88" r="18" fill="#65BE47"/>
+      <!-- Playground Slide / Canteen Kiosk -->
+      <g transform="translate(100 35)">
+        <!-- Kiosk Awning / Tent -->
+        <polygon points="0,28 40,8 80,28" fill="#F26B50" stroke="#B83A20" stroke-width="1.8"/>
+        <rect x="8" y="28" width="64" height="42" fill="#FFF9E6" stroke="#D19E45" stroke-width="1.5"/>
+        <rect x="18" y="40" width="44" height="16" fill="#F5C542" rx="2"/>
+        <!-- Slide on Right -->
+        <path d="M72 40 C85 40 92 65 110 70" fill="none" stroke="#3DAEE9" stroke-width="7" stroke-linecap="round"/>
+        <path d="M72 40 C85 40 92 65 110 70" fill="none" stroke="#1D6994" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="72" y1="40" x2="72" y2="70" stroke="#754722" stroke-width="3"/>
+        <line x1="68" y1="48" x2="76" y2="48" stroke="#D19E45" stroke-width="2"/>
+        <line x1="68" y1="56" x2="76" y2="56" stroke="#D19E45" stroke-width="2"/>
+      </g>
+      <!-- Picnic bench -->
+      <rect x="45" y="94" width="35" height="6" rx="2" fill="#8C5C30"/>
+      <rect x="52" y="100" width="4" height="12" fill="#663E1A"/>
+      <rect x="70" y="100" width="4" height="12" fill="#663E1A"/>
+      <!-- Daisies -->
+      <circle cx="190" cy="115" r="3.5" fill="#fff"/><circle cx="190" cy="115" r="1.5" fill="#F5C542"/>
+    </svg>`;
+  } else {
+    // Level 3: Jalan Depan Sekolah (School gate, sidewalk, street crosswalk)
+    return `<svg viewBox="0 0 280 130" preserveAspectRatio="xMidYMid slice" class="m-thumb-svg">
+      <rect width="280" height="130" fill="#E8F4FC"/>
+      <!-- Road asphalt -->
+      <rect y="85" width="280" height="45" fill="#525B60"/>
+      <!-- Sidewalk curb -->
+      <rect y="74" width="280" height="12" fill="#BDC6CC"/>
+      <!-- Zebra cross lines -->
+      <g fill="#FFFFFF" opacity=".9">
+        <rect x="60" y="92" width="14" height="32" rx="1"/>
+        <rect x="85" y="92" width="14" height="32" rx="1"/>
+        <rect x="110" y="92" width="14" height="32" rx="1"/>
+        <rect x="135" y="92" width="14" height="32" rx="1"/>
+        <rect x="160" y="92" width="14" height="32" rx="1"/>
+        <rect x="185" y="92" width="14" height="32" rx="1"/>
+        <rect x="210" y="92" width="14" height="32" rx="1"/>
+      </g>
+      <!-- School Gate & Fence -->
+      <g transform="translate(65 24)">
+        <!-- Left Pillar -->
+        <rect x="0" y="10" width="18" height="42" fill="#D98A52" stroke="#8C4A1C" stroke-width="1.5"/>
+        <rect x="-2" y="6" width="22" height="6" fill="#F2E6D8" stroke="#8C4A1C" stroke-width="1.2"/>
+        <circle cx="9" cy="2" r="4" fill="#F2E6D8" stroke="#8C4A1C" stroke-width="1.2"/>
+        <!-- Right Pillar -->
+        <rect x="130" y="10" width="18" height="42" fill="#D98A52" stroke="#8C4A1C" stroke-width="1.5"/>
+        <rect x="128" y="6" width="22" height="6" fill="#F2E6D8" stroke="#8C4A1C" stroke-width="1.2"/>
+        <circle cx="139" cy="2" r="4" fill="#F2E6D8" stroke="#8C4A1C" stroke-width="1.2"/>
+        <!-- Iron Gate Bars -->
+        <rect x="18" y="20" width="112" height="32" fill="none" stroke="#3E4A52" stroke-width="2"/>
+        <line x1="36" y1="18" x2="36" y2="52" stroke="#3E4A52" stroke-width="2"/>
+        <line x1="56" y1="18" x2="56" y2="52" stroke="#3E4A52" stroke-width="2"/>
+        <line x1="74" y1="15" x2="74" y2="52" stroke="#3E4A52" stroke-width="2.5"/>
+        <line x1="92" y1="18" x2="92" y2="52" stroke="#3E4A52" stroke-width="2"/>
+        <line x1="112" y1="18" x2="112" y2="52" stroke="#3E4A52" stroke-width="2"/>
+      </g>
+      <!-- Streetlamp on Left -->
+      <g transform="translate(30 20)">
+        <line x1="0" y1="54" x2="0" y2="8" stroke="#485661" stroke-width="3"/>
+        <path d="M0 8 Q8 0 16 4" fill="none" stroke="#485661" stroke-width="2.5"/>
+        <polygon points="12,4 20,4 18,10 14,10" fill="#FCE36D"/>
+      </g>
+      <!-- Tree on Right -->
+      <g transform="translate(235 30)">
+        <rect x="10" y="24" width="8" height="24" fill="#754722"/>
+        <circle cx="14" cy="18" r="20" fill="#4FAE55"/>
+      </g>
+    </svg>`;
+  }
+}
+
+function heroArt() {
+  return homeHeroArt();
+}
+
+function trophyArt() {
+  return badgeHeroArt();
+}
+
+function tentangArt() {
+  return `<svg viewBox="0 0 360 210" aria-hidden="true">
+    <defs>
+      <linearGradient id="laptopScreenGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#F5FCEB"/>
+        <stop offset="100%" stop-color="#D7F2B7"/>
+      </linearGradient>
+    </defs>
+    <!-- Background Glow & Hill -->
+    <circle cx="260" cy="100" r="88" fill="#EBF9CF" opacity=".7"/>
+    <ellipse cx="190" cy="186" rx="156" ry="16" fill="#7FB86B" opacity=".35"/>
+    <ellipse cx="190" cy="178" rx="142" ry="14" fill="#8FCB77"/>
+
+    <!-- Fluffy Clouds -->
+    <g fill="#FFFFFF" opacity=".75">
+      <circle cx="95" cy="52" r="16"/>
+      <circle cx="114" cy="46" r="20"/>
+      <circle cx="132" cy="52" r="15"/>
+      <rect x="95" y="52" width="37" height="15" rx="7"/>
+    </g>
+
+    <!-- Potted Plant (Left) -->
+    <g transform="translate(86 98)">
+      <polygon points="12,48 28,48 34,22 6,22" fill="#E88B58"/>
+      <rect x="4" y="18" width="32" height="6" rx="2" fill="#D37340"/>
+      <ellipse cx="20" cy="20" rx="14" ry="3" fill="#6B422B"/>
+      <path d="M20 18 Q20 5 14 0" stroke="#468834" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <path d="M14 0 C10 -10 2 -2 14 0" fill="#65BE47"/>
+      <path d="M17 10 C27 4 25 -4 17 6" fill="#88D659"/>
+      <path d="M15 14 C5 10 7 2 15 11" fill="#72C64E"/>
+    </g>
+
+    <!-- Laptop (Center) -->
+    <g transform="translate(130 38)">
+      <rect x="18" y="12" width="134" height="96" rx="10" fill="#2F3934"/>
+      <rect x="24" y="18" width="122" height="84" rx="6" fill="#3D4B44"/>
+      <rect x="28" y="22" width="114" height="76" rx="4" fill="url(#laptopScreenGrad)"/>
+      <path d="M85 40 C68 40 60 55 60 67 C72 67 87 59 87 40 Z" fill="#4BAE55"/>
+      <path d="M60 67 C72 67 80 52 80 40" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity=".7"/>
+      <path d="M2 110 L168 110 L180 128 L-10 128 Z" fill="#D2DBDC"/>
+      <path d="M0 112 L170 112 L178 126 L-8 126 Z" fill="#E8EFF0"/>
+      <rect x="68" y="113" width="34" height="5" rx="2" fill="#B5C0C2"/>
+      <rect x="18" y="108" width="134" height="4" rx="2" fill="#5F6F67"/>
+    </g>
+
+    <!-- Green Recycling Bin (Right) -->
+    <g transform="translate(268 64)">
+      <polygon points="12,106 56,106 62,32 6,32" fill="#4BAE55"/>
+      <rect x="2" y="24" width="64" height="11" rx="4" fill="#3D9B47"/>
+      <rect x="18" y="16" width="32" height="9" rx="3" fill="#36863E"/>
+      <g fill="#FFFFFF" transform="translate(24 56) scale(0.9)">
+        <path d="M12 2 L15 7 L12 7 L12 11 L10 11 L10 7 L7 7 Z"/>
+        <path d="M21 16 L17 13 L17 15 L13 13 L12 15 L16 17 L16 19 Z"/>
+        <path d="M3 16 L7 19 L7 17 L11 15 L10 13 L6 15 L6 13 Z"/>
+      </g>
+    </g>
+
+    <!-- Sparkles -->
+    <g fill="#FFF" opacity=".95">
+      <path d="M336 46 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z"/>
+      <path d="M74 86 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 z"/>
+      <path d="M136 30 l2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 4 -2 z"/>
     </g>
   </svg>`;
 }
@@ -260,66 +696,61 @@ function tissueArt() {
 function sceneBg() {
   return `<svg class="scene-bg" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#CFEDEA"/><stop offset="1" stop-color="#E6F7ED"/>
-      </linearGradient>
-      <linearGradient id="hillG" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#D7EFB4"/><stop offset="1" stop-color="#C5E49B"/>
-      </linearGradient>
+      <pattern id="hazardStripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="8" height="16" fill="#F5C538"/>
+        <rect x="8" width="8" height="16" fill="#243028"/>
+      </pattern>
     </defs>
-    <rect width="1200" height="520" fill="url(#skyG)"/>
-    <circle cx="1020" cy="90" r="130" fill="#FBF3C8" opacity=".6"/>
-    <g fill="#fff" opacity=".85">
-      <ellipse cx="190" cy="110" rx="54" ry="18"/><ellipse cx="230" cy="100" rx="34" ry="16"/>
-      <ellipse cx="780" cy="82" rx="44" ry="15"/><ellipse cx="812" cy="74" rx="28" ry="13"/>
-      <ellipse cx="930" cy="170" rx="38" ry="13"/><ellipse cx="958" cy="163" rx="24" ry="11"/>
-    </g>
-    <path d="M0 330 Q150 250 330 310 T680 300 T1000 320 T1200 300 V520 H0Z" fill="#DDF3C4"/>
-    <path d="M0 380 Q190 300 420 365 T820 350 T1200 372 V520 H0Z" fill="url(#hillG)"/>
-    ${treeArt(120, 300, 1)}
-    ${treeArt(1040, 290, .9)}
-    ${treeArt(1100, 315, .7)}
-    <rect y="410" width="1200" height="110" fill="#CDE9A8"/>
-    <path d="M0 438 Q300 412 600 438 T1200 432 V520 H0Z" fill="#BFDF9B"/>
+    <!-- Background Image 2 for Misi / Arena Permainan -->
+    <image href="assets/bg-game.jpg" x="0" y="0" width="1200" height="520" preserveAspectRatio="xMidYMid slice"/>
+
+    <!-- Industrial Conveyor Belt -->
     <g class="conveyor-group">
-      <!-- Kaki penyangga conveyor -->
-      <rect x="180" y="390" width="15" height="48" rx="4" fill="#3B4740"/>
-      <rect x="660" y="390" width="15" height="48" rx="4" fill="#3B4740"/>
-      <rect x="980" y="390" width="15" height="48" rx="4" fill="#3B4740"/>
-      <!-- Sabuk Conveyor Belt -->
-      <rect x="26" y="356" width="1148" height="34" rx="17" fill="#45534C"/>
-      <rect x="42" y="364" width="1116" height="5" rx="3" fill="#5C6B61" opacity=".65"/>
-      <!-- Track bergaris yang bergerak terus menerus -->
-      <path class="conveyor-moving-track" d="M42 373h1116" stroke="#93A79A" stroke-width="4" stroke-dasharray="18 22" stroke-linecap="round" opacity=".85"/>
-      <!-- Roller kiri yang berputar -->
+      <!-- Steel Support Pillars with Hazard Stripes Footings -->
+      <rect x="172" y="385" width="18" height="52" rx="3" fill="#3B4740"/>
+      <rect x="157" y="426" width="48" height="16" rx="3" fill="url(#hazardStripes)" stroke="#1B221E" stroke-width="1.5"/>
+      <rect x="652" y="385" width="18" height="52" rx="3" fill="#3B4740"/>
+      <rect x="637" y="426" width="48" height="16" rx="3" fill="url(#hazardStripes)" stroke="#1B221E" stroke-width="1.5"/>
+      <rect x="972" y="385" width="18" height="52" rx="3" fill="#3B4740"/>
+      <rect x="957" y="426" width="48" height="16" rx="3" fill="url(#hazardStripes)" stroke="#1B221E" stroke-width="1.5"/>
+
+      <!-- Main Heavy Conveyor Bed -->
+      <rect x="24" y="354" width="1152" height="36" rx="18" fill="#36423B" stroke="#222B25" stroke-width="2.5"/>
+      <rect x="42" y="362" width="1116" height="5" rx="3" fill="#58675E" opacity=".7"/>
+
+      <!-- Moving Belt Track with Road Markings -->
+      <path class="conveyor-moving-track" d="M42 372h1116" stroke="#93A79A" stroke-width="4.5" stroke-dasharray="20 22" stroke-linecap="round" opacity=".9"/>
+
+      <!-- Rotating Gear Wheel (Left) -->
       <g class="conveyor-wheel wheel-left">
-        <circle cx="44" cy="373" r="18" fill="#3B4740" stroke="#2E3833" stroke-width="4"/>
-        <circle cx="44" cy="373" r="6" fill="#2E3833"/>
-        <line x1="44" y1="358" x2="44" y2="388" stroke="#829487" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="29" y1="373" x2="59" y2="373" stroke="#829487" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="42" cy="372" r="20" fill="#2E3833" stroke="#1A221E" stroke-width="4"/>
+        <circle cx="42" cy="372" r="13" fill="#46544D"/>
+        <circle cx="42" cy="372" r="6" fill="#1A221E"/>
+        <line x1="42" y1="354" x2="42" y2="390" stroke="#8A9D91" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="24" y1="372" x2="60" y2="372" stroke="#8A9D91" stroke-width="2.5" stroke-linecap="round"/>
       </g>
-      <!-- Roller kanan yang berputar -->
+      <!-- Rotating Gear Wheel (Right) -->
       <g class="conveyor-wheel wheel-right">
-        <circle cx="1156" cy="373" r="18" fill="#3B4740" stroke="#2E3833" stroke-width="4"/>
-        <circle cx="1156" cy="373" r="6" fill="#2E3833"/>
-        <line x1="1156" y1="358" x2="1156" y2="388" stroke="#829487" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="1141" y1="373" x2="1171" y2="373" stroke="#829487" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="1158" cy="372" r="20" fill="#2E3833" stroke="#1A221E" stroke-width="4"/>
+        <circle cx="1158" cy="372" r="13" fill="#46544D"/>
+        <circle cx="1158" cy="372" r="6" fill="#1A221E"/>
+        <line x1="1158" y1="354" x2="1158" y2="390" stroke="#8A9D91" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="1140" y1="372" x2="1176" y2="372" stroke="#8A9D91" stroke-width="2.5" stroke-linecap="round"/>
       </g>
     </g>
-    <!-- Sampah yang mengantre di atas conveyor belt -->
+
+    <!-- Queued Waste Items on Right Side of Conveyor -->
     <g class="conveyor-items">
-      <g transform="translate(960 292)">${bottleArt()}</g>
-      <g transform="translate(1030 304)">${canArt("#E2594F", "#fff")}</g>
-      <g transform="translate(1090 304)">${canArt("#3E4C58", "#E2594F")}</g>
-      <g transform="translate(1146 310)">${tissueArt()}</g>
+      <g transform="translate(950 286)">${bottleArt()}</g>
+      <g transform="translate(1020 298)">${canArt("#E2594F", "#fff")}</g>
+      <g transform="translate(1080 298)">${canArt("#3E4C58", "#F5C538")}</g>
+      <g transform="translate(1138 304)">${tissueArt()}</g>
     </g>
-    <g fill="#fff" opacity=".9">
-      <path d="M700 190l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
-      <path d="M880 250l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
-    </g>
-    <g fill="#8FD07A" opacity=".8">
-      <path d="M540 210c-10-4-16-12-16-22 10 0 18 6 20 16z"/>
-      <path d="M560 320c8-6 18-7 26-2-4 8-14 12-24 8z"/>
+
+    <!-- Sparkles and subtle nature accents -->
+    <g fill="#fff" opacity=".95">
+      <path d="M700 180l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
+      <path d="M880 230l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
     </g>
   </svg>`;
 }
@@ -539,6 +970,7 @@ const save = () => {
     users.push(currentUser);
   }
   saveUsersDatabase(users);
+  renderLeaderboard();
 };
 
 let game = null;
@@ -553,19 +985,42 @@ function updateLevel() {
 
 /* ---------------- Navigation ---------------- */
 function showPage(page) {
-  const names = { beranda: "Beranda", ensiklopedia: "Ensiklopedia", statistik: "Statistik", pencapaian: "Pencapaian", game: "Permainan", kuis: "Kuis harian" };
+  const names = {
+    beranda: "Beranda",
+    ensiklopedia: "Ensiklopedia",
+    statistik: "Statistik",
+    pencapaian: "Pencapaian",
+    game: "Permainan",
+    kuis: "Kuis harian",
+    tentang: "Tentang"
+  };
   const isGame = page === "game";
   $("#app").hidden = isGame;
   $("#gameRoot").hidden = !isGame;
-  ["beranda", "ensiklopedia", "statistik", "pencapaian", "kuis"].forEach(p => {
+  ["beranda", "ensiklopedia", "statistik", "pencapaian", "kuis", "tentang"].forEach(p => {
     const el = $("#page-" + p);
     if (el) el.hidden = p !== page;
   });
   $$(".side-nav button").forEach(b => b.classList.toggle("active", b.dataset.page === page));
   $("#crumb").textContent = names[page] || "Ensiklopedia";
-  if (page === "statistik") renderStats();
-  if (page === "pencapaian") renderBadges();
+  if (page === "beranda") {
+    const ah = $("#artHome"); if (ah && !ah.children.length) ah.innerHTML = homeHeroArt();
+    renderMissions();
+  }
+  if (page === "ensiklopedia") {
+    const ae = $("#artEco"); if (ae && !ae.children.length) ae.innerHTML = ecoHeroArt();
+    renderEco();
+  }
+  if (page === "statistik") {
+    const as = $("#artStat"); if (as && !as.children.length) as.innerHTML = statHeroArt();
+    renderStats();
+  }
+  if (page === "pencapaian") {
+    const ab = $("#artBadge"); if (ab && !ab.children.length) ab.innerHTML = badgeHeroArt();
+    renderBadges();
+  }
   if (page === "kuis") renderQuiz();
+  if (page === "tentang") renderAbout();
   if (!isGame) window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -593,12 +1048,37 @@ function renderShell() {
     <div class="bar"><span style="width:${pct}%"></span></div>
     <div class="poin">${fmt(state.poin)} / ${fmt(tier.max)} poin</div>`;
 
+  renderLeaderboard();
   const topAva = $("#topAva");
   if (topAva) topAva.innerHTML = avatar(currentUser.avatar || "aris");
 }
 
 function renderLeaderboard() {
-  // Papan Peringkat dinonaktifkan
+  const sb = $("#sideBoard");
+  if (!sb) return;
+
+  const users = loadUsersDatabase();
+  users.sort((a, b) => (b.poin || 0) - (a.poin || 0));
+  const top3 = users.slice(0, 3);
+
+  sb.innerHTML = top3.map((u, idx) => {
+    const isCurrent = currentUser && u.id === currentUser.id;
+    return `
+      <div class="board-row ${isCurrent ? "is-user" : ""}">
+        <span class="rank-badge r${idx + 1}">${idx + 1}</span>
+        <span class="ba">${avatar(u.avatar || "aris")}</span>
+        <span class="bn">${u.name}${isCurrent ? " (Kamu)" : ""}</span>
+        <span class="bp">${fmt(u.poin || 0)}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAbout() {
+  const el = $("#artTentang");
+  if (el && !el.innerHTML.trim()) {
+    el.innerHTML = tentangArt();
+  }
 }
 
 /* ---------------- Encyclopedia ---------------- */
@@ -680,15 +1160,22 @@ function categoryDetail(id) {
 function renderMissions() {
   $("#missionGrid").innerHTML = LEVELS.map((l, idx) => {
     const stars = state.levels[idx]?.stars || 0;
-    // Level 1 selalu terbuka bagi siapa pun (termasuk pemain Level 0)
-    // Level 2 terbuka jika Level 1 sudah diselesaikan (minimal 1 bintang), dst.
     const locked = idx > 0 && (state.levels[idx - 1]?.stars || 0) === 0;
     return `<article class="mission-card ${locked ? "locked" : ""}">
-      <span class="num">LEVEL 0${l.id}</span>
-      <h3>${l.name}</h3>
-      <p>${l.sub}</p>
-      <div class="stars">${[0, 1, 2].map(i => `<span class="${i < stars ? "on" : ""}">${ico("star", 18)}</span>`).join("")}</div>
-      <button class="${locked ? "btn-soft" : "btn-dark"}" data-misi="${l.id}" ${locked ? "disabled" : ""}>${locked ? "Terkunci" : "Mainkan misi"} ${ico("arrow", 13)}</button>
+      <div class="mission-thumb">
+        ${missionThumbnail(l.id)}
+      </div>
+      <div class="mission-content">
+        <div class="mission-top-row">
+          <span class="mission-badge ${locked ? "locked-badge" : ""}">LEVEL 0${l.id}</span>
+        </div>
+        <h3>${l.name}</h3>
+        <p>${l.sub}</p>
+        <div class="stars">${[0, 1, 2].map(i => `<span class="${i < stars ? "on" : ""}">${ico("star", 18)}</span>`).join("")}</div>
+        <button class="${locked ? "btn-soft btn-locked" : "btn-dark"}" data-misi="${l.id}" ${locked ? "disabled" : ""}>
+          ${locked ? `Terkunci ${ico("lock", 12)}` : `Mainkan misi ${ico("arrow", 13)}`}
+        </button>
+      </div>
     </article>`;
   }).join("");
 }
@@ -723,30 +1210,36 @@ function renderGame() {
           <span class="g-count">${game.i + 1}/${lv.items.length}</span>
         </div>
         <div class="g-actions">
-          <div class="g-hearts">${[0, 1, 2].map(i => `<span class="${i < game.hearts ? "" : "lost"}">${ico("heart", 13)}</span>`).join("")}</div>
+          <div class="g-hearts">${[0, 1, 2].map(i => `<span class="${i < game.hearts ? "" : "lost"}">${ico("heart", 14)}</span>`).join("")}</div>
           <div class="g-combo ${game.combo ? "" : "off"}">${ico("shield", 12)} x${game.combo}</div>
           <div class="g-coins">${ico("coin", 14)} ${fmt(totalPts)}</div>
-          <div class="g-school-wrap" title="Logo Sekolah"><img class="g-school-logo" src="assets/logo-sekolah.png" alt="Logo Sekolah"></div>
+          <button class="g-sound-btn ${soundState.enabled ? '' : 'muted'}" id="soundToggle" title="${soundState.enabled ? 'Matikan Suara' : 'Nyalakan Suara'}">
+            ${ico(soundState.enabled ? "volume" : "volume-mute", 16)}
+          </button>
         </div>
       </header>
 
       <div class="game-scene">
         ${sceneBg()}
-        <div class="scene-hint">
-          <span class="sh-ico">${ico("bulb", 14)}</span>
-          <div><strong>Petunjuk</strong><p>${item.hint}</p></div>
+        <div class="scene-hint-card ${game.hint ? "expanded" : ""}" id="sceneHintCard">
+          <div class="shc-header">
+            <span class="shc-ico">${ico("bulb", 15)}</span>
+            <strong>Petunjuk</strong>
+            <span class="shc-toggle">${game.hint ? "▲" : "▼"}</span>
+          </div>
+          <p class="shc-text">${item.hint}</p>
         </div>
         <div class="scene-prompt">${ico("leaf-small", 11)} Tempat sampah mana yang tepat?</div>
-        <div class="scene-level">
-          <span class="lv"><i></i> Level ${lv.id} dari ${LEVELS.length}</span>
-          <span class="pts">${ico("star", 10)} ${fmt(totalPts)} poin</span>
+        <div class="scene-hud-right">
+          <span class="scene-badge-pill lv">${ico("leaf-small", 11)} Level ${lv.id} dari ${LEVELS.length}</span>
+          <span class="scene-badge-pill pts">${ico("star", 11)} + ${fmt(game.score)} poin</span>
         </div>
 
         <span class="waste-glow"></span>
         <div class="waste-card ${game.answered ? (game.wrong ? "bad" : "ok") : ""}" id="waste" draggable="${!game.answered}">
           <div class="visual">${item.svg}</div>
-          <h2>${item.name} ${ico("sparkle", 11)}</h2>
-          <button class="hint-chip ${game.hint ? "on" : ""}" id="hintBtn">${ico("bulb", 10)} Petunjuk</button>
+          <h2>${item.name} <span class="waste-sparkle">✦</span></h2>
+          <button class="hint-chip ${game.hint ? "on" : ""}" id="hintBtn">${ico("bulb", 11)} Petunjuk</button>
         </div>
 
         ${game.answered ? feedback(item) : ""}
@@ -755,9 +1248,11 @@ function renderGame() {
       <div class="game-bins">
         ${CATEGORIES.map((c) => `
           <button class="g-bin ${c.id} ${game.answered && c.id === item.bin ? "hit" : ""} ${game.answered && game.wrong && c.id === game.picked ? "miss" : ""}" data-bin="${c.id}" ${game.answered ? "disabled" : ""}>
+            <span class="g-bin-foliage f-left"></span>
+            <span class="g-bin-foliage f-right"></span>
             <span class="g-bin-art">${binArt(c.id)}</span>
             <div class="g-bin-txt">
-              <h3>${ico("check-circle", 12)} ${c.name}</h3>
+              <h3>${ico("check-circle", 13)} ${c.name}</h3>
               <p>${BIN_DESC[c.id]}</p>
             </div>
           </button>`).join("")}
@@ -785,7 +1280,17 @@ function feedback(item) {
 
 function bindGame(item) {
   $("#gameBack").onclick = () => showPage("beranda");
-  $("#hintBtn")?.addEventListener("click", () => { game.hint = !game.hint; renderGame(); });
+  $("#soundToggle")?.addEventListener("click", () => {
+    soundState.toggle();
+  });
+  $("#sceneHintCard")?.addEventListener("click", () => {
+    game.hint = !game.hint;
+    renderGame();
+  });
+  $("#hintBtn")?.addEventListener("click", () => {
+    game.hint = !game.hint;
+    renderGame();
+  });
   $$(".g-bin").forEach(b => {
     b.onclick = () => answer(b.dataset.bin);
     b.addEventListener("dragover", e => { if (!game.answered) { e.preventDefault(); b.classList.add("hit"); } });
@@ -812,16 +1317,17 @@ function answer(bin) {
   game.wrong = bin !== item.bin;
   state.answered++;
   if (game.wrong) {
+    soundState.play("wrong");
     game.combo = 0;
     game.hearts--;
   } else {
+    soundState.play("correct");
     game.combo++;
     game.earned = 100 + (game.combo - 1) * 25;
     game.score += game.earned;
     game.correct++;
     state.correct++;
     state.cats[item.bin] = (state.cats[item.bin] || 0) + 1;
-    // Catat ke statistik aktivitas harian
     const dayIdx = Math.min(4, Math.max(0, new Date().getDay() - 1));
     if (!state.weekly || state.weekly.length !== 5) state.weekly = [0, 0, 0, 0, 0];
     state.weekly[dayIdx] = (state.weekly[dayIdx] || 0) + 1;
@@ -847,6 +1353,7 @@ function finishGame() {
   renderMissions();
 
   const ok = stars > 0;
+  if (ok) soundState.play("coin"); else soundState.play("wrong");
   const next = LEVELS[game.id];
   $("#gameRoot").innerHTML = `<div class="game-result-wrap"><div class="result">
     <span class="badge">${ok ? "Misi selesai!" : "Coba lagi"}</span>
@@ -1004,19 +1511,25 @@ function renderStats() {
 
 /* ---------------- Achievements ---------------- */
 function badgeData() {
-  const acc = state.answered > 0 ? Math.round(state.correct / state.answered * 100) : 0;
-  const stars = state.levels.reduce((a, l) => a + (l.stars || 0), 0);
-  const total = Object.values(state.cats).reduce((a, b) => a + b, 0);
+  const answered = state.answered || 0;
+  const correct = state.correct || 0;
+  const acc = answered > 0 ? Math.round(correct / answered * 100) : 0;
+  const levels = Array.isArray(state.levels) ? state.levels : [];
+  const stars = levels.reduce((a, l) => a + (l?.stars || 0), 0);
+  const cats = state.cats || {};
+  const total = Object.values(cats).reduce((a, b) => a + (Number(b) || 0), 0);
+  const games = state.games || 0;
+  const poin = state.poin || 0;
 
   return [
-    { n: "Pemula Hijau", d: "Selesaikan misi pertamamu", ok: state.games >= 1, art: "seal", prog: [Math.min(1, state.games), 1] },
-    { n: "Pilah 10 Sampah", d: "Pilah 10 sampah dengan tepat", ok: total >= 10, art: "plant", prog: [total, 10] },
-    { n: "Akurasi Hebat", d: "Capai akurasi 80% ke atas", ok: state.answered >= 5 && acc >= 80, art: "target", prog: [state.answered >= 5 ? acc : 0, 80] },
-    { n: "Penjelajah Taman", d: "Naik ke Level 1 (300 poin)", ok: state.poin >= 300, art: "earth", prog: [state.poin, 300] },
-    { n: "Penjaga Kantin", d: "Naik ke Level 2 (700 poin)", ok: state.poin >= 700, art: "trophy", prog: [state.poin, 700] },
-    { n: "Bintang Sejati", d: "Kumpulkan 3 bintang misi", ok: stars >= 3, art: "star", prog: [stars, 3] },
-    { n: "Ahli Kuis", d: "Selesaikan kuis harian", ok: state.quizDone, art: "book", prog: [state.quizDone ? 1 : 0, 1] },
-    { n: "Kolektor Bintang", d: "Kumpulkan 9 bintang", ok: stars >= 9, art: "star", prog: [stars, 9] }
+    { id: "b1", n: "Pemula Hijau", d: "Selesaikan misi pertamamu", ok: games >= 1, art: "seal", prog: [Math.min(1, games), 1] },
+    { id: "b2", n: "Pilah 10 Sampah", d: "Pilah 10 sampah dengan tepat", ok: total >= 10, art: "plant", prog: [Math.min(10, total), 10] },
+    { id: "b3", n: "Akurasi Hebat", d: "Capai akurasi 80% ke atas", ok: answered >= 5 && acc >= 80, art: "target", prog: [answered >= 5 ? acc : 0, 80], isPercent: true },
+    { id: "b4", n: "Penjelajah Taman", d: "Naik ke Level 1 (300 poin)", ok: poin >= 300, art: "earth", prog: [Math.min(300, poin), 300] },
+    { id: "b5", n: "Penjaga Kantin", d: "Naik ke Level 2 (700 poin)", ok: poin >= 700, art: "trophy", prog: [Math.min(700, poin), 700] },
+    { id: "b6", n: "Bintang Sejati", d: "Kumpulkan 3 bintang misi", ok: stars >= 3, art: "star", prog: [Math.min(3, stars), 3] },
+    { id: "b7", n: "Ahli Kuis", d: "Selesaikan kuis harian", ok: Boolean(state.quizDone), art: "book", prog: [state.quizDone ? 1 : 0, 1] },
+    { id: "b8", n: "Kolektor Bintang", d: "Kumpulkan 9 bintang", ok: stars >= 9, art: "star", prog: [Math.min(9, stars), 9] }
   ];
 }
 
@@ -1024,22 +1537,35 @@ function renderBadges() {
   const list = badgeData();
   const shown = badgeFilter === "terkunci" ? list.filter(b => !b.ok) : list;
   const unlocked = list.filter(b => b.ok).length;
-  $("#badgeCount").textContent = `${unlocked} / ${list.length}`;
-  $("#badgeGrid").innerHTML = shown.length ? shown.map(b => {
-    const prog = b.prog || [0, 1];
-    return `<article class="badge-card ${b.ok ? "" : "locked"}">
-      ${!b.ok ? `<span class="b-lock">${ico("lock", 10)}</span>` : ""}
-      <div class="badge-art">${badgeArt(b.art)}</div>
-      <div>
-        <h3>${b.n}</h3>
-        <p>${b.d}</p>
-        ${b.ok
-          ? `<span class="b-status">${ico("check", 9)} ${b.st || "Terbuka"}</span>`
-          : `<div class="b-progress"><span style="width:${Math.min(100, Math.round(prog[0] / prog[1] * 100))}%"></span></div>
-             <div class="b-progress-label">${prog[0]} / ${prog[1]}</div>`}
-      </div>
-    </article>`;
-  }).join("") : `<p class="eco-empty">Semua lencana sudah terbuka. Hebat!</p>`;
+  const countEl = $("#badgeCount");
+  if (countEl) countEl.textContent = `${unlocked} / ${list.length}`;
+
+  // Sync filter buttons active state
+  $$("[data-badge-filter]").forEach(x => {
+    x.classList.toggle("active", x.dataset.badgeFilter === badgeFilter);
+  });
+
+  const grid = $("#badgeGrid");
+  if (grid) {
+    grid.innerHTML = shown.length ? shown.map(b => {
+      const prog = b.prog || [0, 1];
+      const pct = Math.min(100, Math.round(prog[0] / prog[1] * 100));
+      return `<article class="badge-card ${b.ok ? "unlocked" : "locked"}" data-badge-id="${b.id}" tabindex="0" role="button" aria-label="${b.n}">
+        ${!b.ok ? `<span class="b-lock">${ico("lock", 10)}</span>` : ""}
+        <div class="badge-art">${badgeArt(b.art)}</div>
+        <div class="badge-info">
+          <h3>${b.n}</h3>
+          <p>${b.d}</p>
+          ${b.ok
+            ? `<span class="b-status">${ico("check", 9)} Terbuka</span>`
+            : (b.isPercent && (state.answered || 0) < 5
+                ? `<span class="b-status locked-pill">${ico("lock", 9)} Terkunci</span>`
+                : `<div class="b-progress"><span style="width:${pct}%"></span></div>
+                   <div class="b-progress-label">${fmt(prog[0])} / ${fmt(prog[1])}${b.isPercent ? "%" : ""}</div>`)}
+        </div>
+      </article>`;
+    }).join("") : `<p class="eco-empty">Semua lencana sudah terbuka. Hebat!</p>`;
+  }
   renderLevelProgress();
   renderMissionBanner();
 }
@@ -1050,45 +1576,52 @@ function renderLevelProgress() {
   const span = tier.max - tier.min;
   const inTier = Math.max(0, state.poin - tier.min);
   const pct = Math.min(100, Math.round((inTier / span) * 100));
-  $("#levelProgress").innerHTML = `
+  const el = $("#levelProgress");
+  if (!el) return;
+  el.innerHTML = `
     <div class="lp-top"><strong>${tier.name}</strong><span>Level ${tier.level} · ${fmt(state.poin)} / ${fmt(tier.max)} poin</span></div>
     <div class="lp-bar"><span style="width:${pct}%"></span></div>
     <div class="lp-pct">${pct}%</div>`;
 }
 
 function renderMissionBanner() {
-  const done = Math.min(3, state.games);
+  const mb = $("#missionBanner");
+  if (!mb) return;
+  const done = Math.min(3, state.games || 0);
   const pct = Math.round(done / 3 * 100);
-  $("#missionBanner").innerHTML = `
+  mb.innerHTML = `
     <span class="mb-ico">${ico("flame", 18)}</span>
     <div class="mb-copy"><strong>Misi harian</strong><p>Selesaikan 3 misi hari ini</p></div>
     <div class="mb-bar"><span style="width:${pct}%"></span></div>
     <span class="mb-count">${done} / 3</span>
     <button class="btn-dark sm" id="klaimMisi">${state.missionClaimed ? "Sudah diklaim" : `100 poin ${ico("arrow", 11)}`}</button>`;
-  $("#klaimMisi").onclick = () => {
-    if (state.missionClaimed) {
-      return openModal(`<button class="close" data-close>${ico("close", 20)}</button>
-        <div class="big">${ico("check", 26)}</div><h2>Hadiah sudah diambil</h2>
-        <p>Kamu sudah mengklaim 100 poin untuk misi harian ini. Kembali besok untuk misi baru!</p>
-        <div class="actions"><button class="btn-dark" data-close>Oke</button></div>`);
-    }
-    if (state.games < 3) {
-      return openModal(`<button class="close" data-close>${ico("close", 20)}</button>
-        <div class="big">${ico("flame", 26)}</div><h2>Misi harian belum selesai</h2>
-        <p>Selesaikan ${3 - state.games} misi lagi untuk mendapatkan 100 poin. Semangat!</p>
-        <div class="actions"><button class="btn-soft" data-close>Nanti</button><button class="btn-dark" id="keMisi">Main misi ${ico("arrow", 13)}</button></div>`);
-    }
-    state.poin += 100;
-    state.koin += 10;
-    state.missionClaimed = true;
-    save();
-    renderShell();
-    renderBadges();
-    openModal(`<button class="close" data-close>${ico("close", 20)}</button>
-      <div class="big">${ico("star", 26)}</div><h2>Misi harian selesai!</h2>
-      <p>Kamu mendapatkan <strong>+100 poin</strong> dan <strong>+10 koin</strong>. Terima kasih sudah menjaga bumi hari ini!</p>
-      <div class="actions"><button class="btn-dark" data-close>Lanjut belajar</button></div>`);
-  };
+  const km = $("#klaimMisi");
+  if (km) {
+    km.onclick = () => {
+      if (state.missionClaimed) {
+        return openModal(`<button class="close" data-close>${ico("close", 20)}</button>
+          <div class="big">${ico("check", 26)}</div><h2>Hadiah sudah diambil</h2>
+          <p>Kamu sudah mengklaim 100 poin untuk misi harian ini. Kembali besok untuk misi baru!</p>
+          <div class="actions"><button class="btn-dark" data-close>Oke</button></div>`);
+      }
+      if ((state.games || 0) < 3) {
+        return openModal(`<button class="close" data-close>${ico("close", 20)}</button>
+          <div class="big">${ico("flame", 26)}</div><h2>Misi harian belum selesai</h2>
+          <p>Selesaikan ${3 - (state.games || 0)} misi lagi untuk mendapatkan 100 poin. Semangat!</p>
+          <div class="actions"><button class="btn-soft" data-close>Nanti</button><button class="btn-dark" id="keMisi">Main misi ${ico("arrow", 13)}</button></div>`);
+      }
+      state.poin += 100;
+      state.koin += 10;
+      state.missionClaimed = true;
+      save();
+      renderShell();
+      renderBadges();
+      openModal(`<button class="close" data-close>${ico("close", 20)}</button>
+        <div class="big">${ico("star", 26)}</div><h2>Misi harian selesai!</h2>
+        <p>Kamu mendapatkan <strong>+100 poin</strong> dan <strong>+10 koin</strong>. Terima kasih sudah menjaga bumi hari ini!</p>
+        <div class="actions"><button class="btn-dark" data-close>Lanjut belajar</button></div>`);
+    };
+  }
 }
 
 /* ---------------- Modal ---------------- */
@@ -1179,6 +1712,52 @@ $$("[data-badge-filter]").forEach(b => b.onclick = () => {
   $$("[data-badge-filter]").forEach(x => x.classList.toggle("active", x === b));
   renderBadges();
 });
+
+const badgeGridEl = $("#badgeGrid");
+if (badgeGridEl) {
+  badgeGridEl.addEventListener("click", e => {
+    const card = e.target.closest("[data-badge-id]");
+    if (!card) return;
+    const id = card.dataset.badgeId;
+    const b = badgeData().find(x => x.id === id);
+    if (!b) return;
+    const prog = b.prog || [0, 1];
+    const pct = Math.min(100, Math.round(prog[0] / prog[1] * 100));
+
+    openModal(`
+      <button class="close" data-close>${ico("close", 20)}</button>
+      <div style="text-align:center; padding: 10px 8px 18px;">
+        <div style="width:72px; height:72px; margin: 0 auto 14px; display:grid; place-items:center; border-radius:22px; background:${b.ok ? "#E9F7EC" : "#F4F7F2"}; box-shadow:0 8px 20px rgba(0,0,0,0.06);">
+          ${badgeArt(b.art)}
+        </div>
+        <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin-bottom:4px;">${b.n}</h2>
+        <p style="font-size:12px; color:#556E5D; font-weight:700; margin-bottom:16px;">${b.d}</p>
+        
+        <div style="background:#F7FAF5; border:1px solid #E4ECE0; border-radius:16px; padding:12px 16px; margin-bottom:18px; text-align:left;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <strong style="font-size:12px; color:#1E4B2C;">Status Lencana:</strong>
+            <span class="b-status ${b.ok ? "" : "locked-pill"}" style="margin:0;">
+              ${b.ok ? `${ico("check", 10)} Terbuka` : `${ico("lock", 10)} Terkunci`}
+            </span>
+          </div>
+          <div style="font-size:11px; color:#607365; font-weight:700; margin-bottom:6px;">
+            Progres: ${b.isPercent ? `${prog[0]}% / ${prog[1]}%` : `${fmt(prog[0])} / ${fmt(prog[1])}`} (${pct}%)
+          </div>
+          <div class="b-progress" style="margin:0; width:100%;"><span style="width:${pct}%"></span></div>
+        </div>
+
+        <div class="actions" style="justify-content:center;">
+          ${!b.ok ? `<button class="btn-dark" id="btnBadgeGoMisi">Mainkan Misi ${ico("arrow", 12)}</button>` : `<button class="btn-dark" data-close>Keren!</button>`}
+        </div>
+      </div>
+    `);
+    const goMisi = $("#btnBadgeGoMisi");
+    if (goMisi) goMisi.onclick = () => { closeModal(); showPage("beranda"); };
+  });
+}
+
+const btnPencapaianMore = $("#btnPencapaianMore");
+if (btnPencapaianMore) btnPencapaianMore.onclick = () => showPage("beranda");
 $("#modalRoot").addEventListener("click", e => {
   const switchBtn = e.target.closest("[data-switch-user]");
   if (switchBtn) {
@@ -1252,9 +1831,12 @@ $("#quizCard").addEventListener("click", e => {
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
 /* ---------------- Init ---------------- */
-$("#artEco").innerHTML = heroArt();
-$("#artHome").innerHTML = heroArt();
-$("#artBadge").innerHTML = trophyArt();
+if ($("#artEco")) $("#artEco").innerHTML = ecoHeroArt();
+if ($("#artHome")) $("#artHome").innerHTML = homeHeroArt();
+if ($("#artBadge")) $("#artBadge").innerHTML = badgeHeroArt();
+if ($("#artStat")) $("#artStat").innerHTML = statHeroArt();
+const artTentang = $("#artTentang");
+if (artTentang) artTentang.innerHTML = tentangArt();
 renderShell();
 renderChips();
 renderEco();
