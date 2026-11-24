@@ -249,8 +249,14 @@
     <header class="topbar">
       <div class="breadcrumb">Ruang belajar <span>/</span> <b id="crumb">Ensiklopedia</b></div>
       <div class="top-actions">
+        <button class="theme-toggle-btn" id="btnThemeToggle" title="Ubah Mode Terang / Gelap" aria-label="Toggle Dark Mode">
+          <svg width="18" height="18"><use href="#i-sparkle"/></svg>
+        </button>
+        <span class="streak-pill-top" id="streakTop" title="Runtunan Hari Aktif Belajar">
+          <svg width="15" height="15"><use href="#i-sparkle"/></svg> <b id="streakDays">1 Hari</b>
+        </span>
         <span class="pill pill-coin"><svg width="15" height="15"><use href="#i-coin"/></svg> <b id="poinTop">0</b></span>
-        <div class="school-profile">
+        <div class="school-profile" id="btnProfileAccess" style="cursor:pointer;" title="Kustomisasi Avatar & Aksesori Profil">
           <!-- Ganti src di bawah ini dengan path logo sekolah Anda (contoh: assets/logo-sekolah.png) -->
           <img id="schoolLogo" class="school-logo" src="yadikuy.png" alt="Logo Sekolah" title="Logo Sekolah SMK Yadika Soreang">
           <div class="school-info">
@@ -268,15 +274,84 @@
           <span class="hero-tag"><svg width="12" height="12"><use href="#i-sparkle"/></svg> Ruang belajar</span>
           <h1>Halo! Siap<br>menyelamatkan bumi?</h1>
           <p>Selesaikan misi memilah sampah dan jadilah Penjaga Bumi sejati.</p>
-          <button class="btn-dark" id="btnLanjutBelajar">Lanjut belajar <svg width="15" height="15"><use href="#i-arrow"/></svg></button>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+            <button class="btn-dark" id="btnLanjutBelajar">Lanjut belajar <svg width="15" height="15"><use href="#i-arrow"/></svg></button>
+            <button class="btn-soft" id="btnDailySpinHome" style="background:#FFFFFF; color:#205B3B; font-weight:800; border:1.5px solid #CFE6D3; border-radius:12px; padding:10px 14px;">
+              <svg width="15" height="15" style="display:inline-block; vertical-align:middle; margin-right:4px;"><use href="#i-sparkle"/></svg> Mystery Box Harian
+            </button>
+          </div>
         </div>
         <div class="hero-art" id="artHome"></div>
         <span class="hero-glow"></span>
       </div>
 
-      <div class="section-head">
+      <!-- Mode Permainan Switcher -->
+      <div class="game-modes-grid">
+        <div class="mode-card active-mode" id="modeCardClassic">
+          <span class="mode-badge">Standar</span>
+          <div class="mode-icon-wrap">
+            <svg width="22" height="22"><use href="#i-leaf-small"/></svg>
+          </div>
+          <div class="mode-info">
+            <h4>Misi Petualangan</h4>
+            <p>Pilah dengan teliti, pelajari petunjuk, dan peroleh bintang kelulusan.</p>
+          </div>
+        </div>
+        <div class="mode-card" id="modeCardRush">
+          <span class="mode-badge rush">Tantangan Cepat</span>
+          <div class="mode-icon-wrap rush">
+            <svg width="22" height="22"><use href="#i-sparkle"/></svg>
+          </div>
+          <div class="mode-info">
+            <h4>Mode Rush Hour</h4>
+            <p>Kejar waktu 60 detik dengan combo berlipat ganda tanpa salah!</p>
+          </div>
+        </div>
+        <div class="mode-card" id="modeCardLab">
+          <span class="mode-badge lab">Simulasi STEM</span>
+          <div class="mode-icon-wrap lab">
+            <svg width="22" height="22"><use href="#i-sparkle"/></svg>
+          </div>
+          <div class="mode-info">
+            <h4>Recycling Lab</h4>
+            <p>Simulasi alur nyata pencucian, pencacahan, hingga jadi produk baru!</p>
+          </div>
+        </div>
+        <div class="mode-card" id="modeCardMistake">
+          <span class="mode-badge mistake">Audit Lingkungan</span>
+          <div class="mode-icon-wrap mistake">
+            <svg width="22" height="22"><use href="#i-search"/></svg>
+          </div>
+          <div class="mode-info">
+            <h4>Eco-Audit: Spot Mistake</h4>
+            <p>Identifikasi kesalahan pemilahan di sekolah & pelajari perbaikannya!</p>
+          </div>
+        </div>
+        <div class="mode-card" id="modeCardDecomp">
+          <span class="mode-badge decomp">Urutan Waktu</span>
+          <div class="mode-icon-wrap decomp">
+            <svg width="22" height="22"><use href="#i-sparkle"/></svg>
+          </div>
+          <div class="mode-info">
+            <h4>Decomp Race</h4>
+            <p>Tantangan mengurutkan material dari yang paling cepat terurai!</p>
+          </div>
+        </div>
+        <div class="mode-card" id="modeCardSwap">
+          <span class="mode-badge swap">Gaya Hidup</span>
+          <div class="mode-icon-wrap swap">
+            <svg width="22" height="22"><use href="#i-leaf-small"/></svg>
+          </div>
+          <div class="mode-info">
+            <h4>Zero-Waste Swap</h4>
+            <p>Pilih alternatif kebiasaan harian terbaik berbasis Reduce & Reuse!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:20px;">
         <h2>Misi petualangan</h2>
-        <span class="section-note">3 level</span>
+        <span class="section-note" id="missionCountNote">6 level aktif</span>
       </div>
       <div class="mission-grid" id="missionGrid"></div>
 
@@ -315,6 +390,43 @@
       <div class="tip-banner">
         <span class="tip-ico"><svg width="18" height="18"><use href="#i-bulb"/></svg></span>
         <p><strong>Tahukah kamu?</strong> Sampah organik bisa diolah menjadi kompos!</p>
+      </div>
+
+      <!-- Glosarium Istilah STEM & Lingkungan -->
+      <div class="glossary-section-card">
+        <div class="card-head">
+          <h3>Glosarium Istilah STEM & Lingkungan</h3>
+          <small>Kosakata Penting Sains</small>
+        </div>
+        <p style="font-size:12px; color:#5D7A68; margin-top:2px; font-weight:700;">
+          Pahami istilah ilmiah kunci berikut agar kamu semakin cerdas dalam mengelola sampah:
+        </p>
+        <div class="glossary-grid" id="glossaryGrid">
+          <div class="glossary-item">
+            <strong class="glossary-term">♻️ Daur Ulang (Recycling)</strong>
+            <p class="glossary-def">Proses pengolahan kembali material bekas (seperti plastik, kertas, kaca, logam) menjadi bahan baku atau produk baru bernilai guna.</p>
+          </div>
+          <div class="glossary-item">
+            <strong class="glossary-term">🌱 Pengomposan (Composting)</strong>
+            <p class="glossary-def">Penguraian biologis sampah organik secara aerobik oleh mikroba/jamur menjadi pupuk humus yang sangat menyuburkan tanah.</p>
+          </div>
+          <div class="glossary-item">
+            <strong class="glossary-term">⏳ Waktu Dekomposisi</strong>
+            <p class="glossary-def">Durasi alami yang dibutuhkan suatu material hingga terurai sempurna menjadi unsur tanah oleh mikroorganisme dan cuaca.</p>
+          </div>
+          <div class="glossary-item">
+            <strong class="glossary-term">⚠️ Limbah B3</strong>
+            <p class="glossary-def">Bahan Berbahaya & Beracun yang memiliki sifat korosif, mudah terbakar, reaktif, atau beracun (contoh: baterai bekas, limbah elektronik/e-waste).</p>
+          </div>
+          <div class="glossary-item">
+            <strong class="glossary-term">🗑️ Sampah Residu</strong>
+            <p class="glossary-def">Sampah yang sulit atau tidak dapat didaur ulang/dikomposkan dengan teknologi saat ini (misal styrofoam, popok bekas, kertas struk thermal).</p>
+          </div>
+          <div class="glossary-item">
+            <strong class="glossary-term">🌍 Jejak Karbon (Carbon Footprint)</strong>
+            <p class="glossary-def">Total emisi gas rumah kaca (CO₂ dan metana) yang dihasilkan dari aktivitas manusia, termasuk pembusukan sampah yang tidak terpilah di TPA.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -359,6 +471,18 @@
           <p>Terus belajar agar kamu makin jago memilah!</p>
         </div>
         <button class="btn-dark sm" id="achMore">Lainnya <svg width="14" height="14"><use href="#i-arrow"/></svg></button>
+      </div>
+
+      <!-- Kalkulator Dampak Lingkungan (Impact Calculator) -->
+      <div class="impact-calc-card">
+        <div class="card-head">
+          <h3>Kalkulator Dampak Lingkungan (Eco-Impact)</h3>
+          <small>Estimasi Realistis STEM</small>
+        </div>
+        <p style="font-size:12px; color:#5D7A68; margin-top:2px; font-weight:700;">Dampak nyata dari seluruh sampah yang telah kamu pilah dengan tepat:</p>
+        <div class="impact-metrics-row" id="impactMetricsRow">
+          <!-- Diisi dinamis oleh JavaScript -->
+        </div>
       </div>
     </section>
 
@@ -617,6 +741,23 @@
 
 <!-- ================= GAME (full screen) ================= -->
 <div id="gameRoot" hidden></div>
+
+<!-- Mascot Widget "Penjaga Bumi" -->
+<div class="mascot-bubble-widget" id="mascotWidget">
+  <div class="mascot-speech" id="mascotSpeech">Halo Sobat Hijau! Ayo pilah sampah dengan tepat hari ini!</div>
+  <button class="mascot-avatar-btn" id="mascotBtn" title="Tanya Penjaga Bumi">
+    <svg viewBox="0 0 40 40" width="36" height="36" aria-hidden="true">
+      <circle cx="20" cy="20" r="18" fill="#8CE295"/>
+      <circle cx="15" cy="17" r="2.5" fill="#174D32"/>
+      <circle cx="25" cy="17" r="2.5" fill="#174D32"/>
+      <path d="M15 22q5 4 10 0" stroke="#174D32" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M20 7c-4 0-6 4-6 6h12c0-2-2-6-6-6z" fill="#4AA85B"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Particle Canvas untuk Selebrasi -->
+<canvas id="particleCanvas" class="particle-canvas"></canvas>
 
 <div id="modalRoot"></div>
 <script src="app.js"></script>

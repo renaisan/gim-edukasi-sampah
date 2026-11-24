@@ -113,37 +113,47 @@ const soundState = {
       const gain = this.ctx.createGain();
       osc.connect(gain);
       gain.connect(this.ctx.destination);
+
       if (type === "click") {
         osc.type = "sine";
         osc.frequency.setValueAtTime(540, now);
         osc.frequency.exponentialRampToValueAtTime(820, now + 0.05);
         gain.gain.setValueAtTime(0.09, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-        osc.start(now); osc.stop(now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
       } else if (type === "correct") {
+        // Melodi harmonis menang nada C5 -> G5
         osc.type = "triangle";
         osc.frequency.setValueAtTime(523.25, now);
         osc.frequency.setValueAtTime(659.25, now + 0.08);
         osc.frequency.setValueAtTime(783.99, now + 0.16);
-        gain.gain.setValueAtTime(0.14, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-        osc.start(now); osc.stop(now + 0.28);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
       } else if (type === "wrong") {
+        // Getaran deselerasi bass nada rendah
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(220, now);
-        osc.frequency.setValueAtTime(174.61, now + 0.12);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-        osc.start(now); osc.stop(now + 0.24);
-      } else if (type === "coin") {
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.25);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else if (type === "coin" || type === "badge") {
+        // Nada berkilau gemerincing koin/lencana
         osc.type = "sine";
-        osc.frequency.setValueAtTime(880, now);
-        osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.12);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-        osc.start(now); osc.stop(now + 0.16);
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.09);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Audio Context playback error:", e);
+    }
   }
 };
 
@@ -650,8 +660,30 @@ const AVATARS = {
   naya: { bg: "#F7D9E4", skin: "#F0C39B", hair: "#2A1B14", shirt: "#E8748F", long: true },
   bima: { bg: "#FBE6B8", skin: "#C98A5B", hair: "#1F140E", shirt: "#E0A33A", long: false }
 };
-function avatar(kind, size = 40) {
+
+const ACCESSORIES = [
+  { id: "none", name: "Standar", icon: "🌱", cost: 0, desc: "Tampilan asli tanpa aksesori" },
+  { id: "topi_daun", name: "Topi Daun", icon: "🍃", cost: 150, desc: "Topi ramah lingkungan dari daun hijau" },
+  { id: "kacamata_stem", name: "Kacamata STEM", icon: "👓", cost: 300, desc: "Kacamata ilmuwan cilik peneliti sampah" },
+  { id: "lencana_juara", name: "Mahkota Juara", icon: "👑", cost: 500, desc: "Mahkota emas pahlawan pemilah bumi" }
+];
+
+function getAccessorySvg(accId) {
+  if (accId === "topi_daun") {
+    return `<path d="M11 12 C14 4 26 4 29 12 C24 10 16 10 11 12 Z" fill="#4CAF50" stroke="#2E7D32" stroke-width="0.8"/>
+            <path d="M20 5 Q23 1 27 2" fill="none" stroke="#2E7D32" stroke-width="0.8" stroke-linecap="round"/>`;
+  } else if (accId === "kacamata_stem") {
+    return `<circle cx="16" cy="18" r="3.2" fill="none" stroke="#00BCD4" stroke-width="1.2"/>
+            <circle cx="24" cy="18" r="3.2" fill="none" stroke="#00BCD4" stroke-width="1.2"/>
+            <line x1="19.2" y1="18" x2="20.8" y2="18" stroke="#00BCD4" stroke-width="1.2"/>`;
+  } else if (accId === "lencana_juara") {
+    return `<polygon points="12,12 15,6 20,9 25,6 28,12" fill="#FFD700" stroke="#FFA000" stroke-width="0.8"/>`;
+  }
+  return "";
+}
+function avatar(kind, size = 40, acc = null) {
   const a = AVATARS[kind] || AVATARS.aris;
+  const currentAcc = acc !== null ? acc : (state?.accessory || "none");
   return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" aria-hidden="true">
     <circle cx="20" cy="20" r="20" fill="${a.bg}"/>
     ${a.long ? `<path d="M8 25c0-10 5-15 12-15s12 5 12 15v7H8z" fill="${a.hair}"/>` : ""}
@@ -660,6 +692,7 @@ function avatar(kind, size = 40) {
     <circle cx="17.2" cy="17.6" r="1" fill="#2A1B14"/><circle cx="22.8" cy="17.6" r="1" fill="#2A1B14"/>
     <path d="M18.3 20.5q1.7 1.3 3.4 0" stroke="#2A1B14" stroke-width="1.1" fill="none" stroke-linecap="round"/>
     <path d="M8 40c1-8 5.5-12 12-12s11 4 12 12z" fill="${a.shirt}"/>
+    ${getAccessorySvg(currentAcc)}
   </svg>`;
 }
 
@@ -758,21 +791,24 @@ function sceneBg() {
 /* ---------------- Content ---------------- */
 const CATEGORIES = [
   { id: "organik", name: "Organik", chip: "Organik", card: "mint", badge: "Tempat sampah hijau",
-    desc: ["Kulit buah, sisa makanan, daun", "Olah menjadi kompos"],
-    detail: "Sampah organik adalah sampah yang berasal dari makhluk hidup — seperti tumbuhan dan hewan — yang bisa terurai secara alami dengan bantuan mikroorganisme seperti bakteri dan jamur.",
-    examples: ["Kulit buah & sayur", "Daun kering & ranting", "Sisa nasi & makanan", "Cangkang telur"],
-    traits: ["Berasal dari makhluk hidup", "Mudah membusuk dalam hitungan hari–minggu", "Kaya unsur hara seperti nitrogen dan kalium", "Bisa diubah jadi kompos atau biopori"],
+    desc: ["Kulit buah, sisa makanan, daun", "Olah menjadi kompos & biogas"],
+    detail: "Sampah organik adalah sampah hayati yang berasal dari sisa makhluk hidup (tumbuhan dan hewan) yang dapat didekomposisi secara biologis oleh mikroorganisme tanah, cacing, atau larva pengurai.",
+    examples: ["Kulit buah & sayur", "Daun kering & ranting kebun", "Sisa nasi & lauk makanan", "Cangkang telur & ampas kopi"],
+    traits: ["Berasal dari biomassa makhluk hidup", "Mudah membusuk dalam hitungan 2–6 minggu", "Kaya unsur hara N-P-K (Nitrogen, Fosfor, Kalium)", "Dapat diolah menjadi pupuk kompos, pupuk cair, dan biogas"],
     exampleDetails: [
-      { n: "Kulit buah & sayur", d: "Mengandung kalium dan vitamin, sehingga cepat menjadi kompos subur." },
-      { n: "Daun & ranting", d: "Dicacah halus bisa jadi mulsa yang menjaga kelembapan tanah." },
-      { n: "Sisa nasi & makanan", d: "Masih bisa dijadikan pakan ternak atau campuran kompos." },
-      { n: "Cangkang telur", d: "Sumber kalsium alami untuk menyuburkan tanaman." }
+      { n: "Kulit buah & sayur", d: "Mengandung kalium dan mikronutrien penting, cepat hancur jadi kompos subur." },
+      { n: "Daun & ranting kebun", d: "Sumber karbon cokelat (C) yang menjaga aerasi dan kelembapan kompos." },
+      { n: "Sisa nasi & makanan", d: "Bisa diolah dengan biokonversi maggot BSF menjadi pakan ternak berprotein tinggi." },
+      { n: "Cangkang telur & ampas kopi", d: "Sumber kalsium alami serta peningkat struktur kegemburan tanah tanaman." }
     ],
-    steps: ["Pisahkan dari sampah plastik dan kertas sejak di rumah.", "Potong atau cacah kecil supaya lebih cepat terurai.", "Masukkan ke komposter, lubang biopori, atau tong hijau.", "Siram secukupnya lalu biarkan mikroorganisme bekerja."],
-    why: "Kalau tercampur plastik, kompos jadi terkontaminasi mikroplastik dan tidak bisa dipakai. Memisahkan sampah organik bisa mengurangi sampah yang dibuang ke TPA sampai sekitar 50%.",
-    fact: "Dalam ± 3 bulan, 1 kg sampah organik bisa berubah menjadi sekitar 0,5 kg kompos yang siap menyuburkan tanah.",
-    dont: ["Membakar daun kering (mencemar udara)", "Mencampur sisa makanan dengan plastik", "Membuang sisa kuah ke saluran air"],
-    tip: "Dapat diolah menjadi pupuk kompos atau biopori." },
+    decompTime: "2 Minggu hingga 6 Bulan (sangat cepat terurai alami)",
+    scienceReason: "Dekomposisi organik oleh bakteri melepaskan nutrisi kembali ke tanah. Namun jika menumpuk di TPA tanpa udara (anaerobik), sampah organik menghasilkan gas metana (CH₄) berbahaya.",
+    recycleFlow: "Pemilahan dari sumber ➔ Pencacahan/Pengecilan ukuran ➔ Pengomposan aerobik/Biopori (atau reaktor Biogas) ➔ Penyaringan pupuk matang siap pakai untuk tanaman.",
+    steps: ["Pisahkan dari kemasan plastik, staples, dan karet sejak dari piring/dapur.", "Potong atau cacah kecil agar luas permukaan kontak mikroorganisme bertambah.", "Masukkan ke komposter, lubang biopori, atau pot tanaman pekarangan.", "Jaga kelembapan seimbang (jangan terlalu basah atau kering) agar tidak timbul bau."],
+    why: "Sekitar 50–60% timbulan sampah harian adalah organik. Memilahnya mencegah ledakan gas metana di TPA dan menghasilkan pupuk alami gratis.",
+    fact: "Dalam ± 3 bulan, 100 kg sampah organik dapat menghasilkan 30–40 kg kompos kaya hara yang mampu menggantikan pupuk kimia sintetis.",
+    dont: ["Membakar daun kering (menghasilkan asap beracun dan CO₂)", "Mencampur sisa makanan berminyak dengan plastik kresek", "Membuang sisa makanan ke selokan yang memicu pendangkalan"],
+    tip: "Manfaatkan lubang biopori di sekolah atau pekarangan rumah untuk menyerap air hujan sekaligus mengolah sampah organik." },
   { id: "daur", name: "Daur Ulang", chip: "Daur Ulang", card: "blue", badge: "Tempat sampah kuning / biru",
     desc: ["Botol, plastik, kertas, kaleng", "Bersihkan lalu daur ulang"],
     detail: "Sampah daur ulang adalah sampah yang sulit terurai secara alami, tetapi bernilai ekonomi karena bisa diolah kembali menjadi bahan atau barang baru, misalnya kertas, plastik, logam, dan kaca.",
@@ -858,10 +894,12 @@ const LEVELS = [
 ];
 
 const QUIZ = [
-  { q: "Kulit pisang dan daun kering sebaiknya dimasukkan ke tempat sampah berwarna apa?", opts: ["Hijau (Organik)", "Merah (B3)", "Kuning (Daur Ulang)", "Abu-abu (Residu)"], answer: 0, fact: "Tepat! Keduanya mudah membusuk sehingga masuk kategori organik (hijau)." },
-  { q: "Mengapa baterai bekas tidak boleh dibuang ke tempat sampah biasa?", opts: ["Karena terlalu ringan", "Mengandung zat kimia berbahaya", "Karena bisa dimakan semut", "Karena warnanya menarik"], answer: 1, fact: "Benar! Baterai termasuk limbah B3 karena mengandung logam berat yang mencemari tanah dan air." },
-  { q: "Apa langkah terbaik sebelum membuang botol plastik ke tempat daur ulang?", opts: ["Membakarnya dulu", "Mengosongkan dan meremas botol", "Mencampurnya dengan sisa kuah", "Menyimpannya di dalam ruangan"], answer: 1, fact: "Keren! Mengosongkan dan meremas botol menghemat ruang dan menjaga bahan tetap bersih." },
-  { q: "Tisu kotor dan popok bekas termasuk sampah apa?", opts: ["Organik", "Daur Ulang", "B3", "Residu"], answer: 3, fact: "Betul! Keduanya tidak bisa didaur ulang, jadi dibungkus dan dibuang ke residu." }
+  { q: "Kulit pisang dan daun kering sebaiknya dimasukkan ke tempat sampah berwarna apa?", opts: ["Hijau (Organik)", "Merah (B3)", "Kuning (Daur Ulang)", "Abu-abu (Residu)"], answer: 0, fact: "Tepat! Keduanya mudah membusuk secara alami sehingga masuk kategori organik (hijau)." },
+  { q: "Mengapa baterai bekas tidak boleh dibuang ke tempat sampah biasa?", opts: ["Karena terlalu ringan", "Mengandung logam berat dan bahan kimia beracun", "Karena bisa dimakan semut", "Karena warnanya menarik"], answer: 1, fact: "Benar! Baterai termasuk limbah B3 karena mengandung timbal, merkuri, dan kadmium yang dapat mencemari air minum tanah." },
+  { q: "Apa dampak pencampuran sampah organik di TPA jika menumpuk tanpa udara (kondisi anaerobik)?", opts: ["Menghasilkan gas metana yang memperparah pemanasan global", "Menjadikan TPA semakin wangi", "Membuat plastik cepat hancur", "Tidak ada dampak apa pun"], answer: 0, fact: "Tepat sekali! Sampah organik tanpa oksigen menghasilkan gas metana (CH₄) yang 25x lebih kuat memerangkap panas dibanding CO₂." },
+  { q: "Mengapa kertas struk belanja (thermal paper) dan kemasan berminyak tidak diterima pabrik daur ulang?", opts: ["Karena mengandung zat kimia BPA/lemak yang merusak bubur kertas", "Karena warnanya terlalu putih", "Karena ukurannya terlalu kecil", "Karena terlalu wangi"], answer: 0, fact: "Tepat! Lapisan kimia thermal BPA dan minyak pekat mengkontaminasi bubur pulp daur ulang, sehingga masuk sampah residu." },
+  { q: "Apa langkah paling awal yang harus dilakukan sebelum menyetor botol plastik ke Bank Sampah?", opts: ["Mengosongkan sisa cairan dan membilasnya", "Membakarnya sampai meleleh", "Mengecatnya dengan warna baru", "Menguburnya di dalam tanah"], answer: 0, fact: "Keren! Sisa cairan yang tertinggal menimbulkan bau busuk dan jamur yang menurunkan nilai jual daur ulang." },
+  { q: "Apa aksi nyata paling berdampak dalam prinsip Zero Waste sebelum daur ulang dilakukan?", opts: ["Mengurangi pemakaian wadah sekali pakai (Reduce)", "Membeli lebih banyak kantong plastik", "Membuang semua sampah ke sungai", "Membakar sampah di halaman rumah"], answer: 0, fact: "Luar biasa! Hirarki pengelolaan sampah terbaik selalu diawali dengan mencegah (Reduce) dan menggunakan kembali (Reuse)." }
 ];
 
 /* =========================================================
@@ -892,6 +930,8 @@ function createDefaultAccount(id, name, avatarName) {
     id,
     name,
     avatar: avatarName || "aris",
+    accessory: "none",
+    ownedAccessories: ["none"],
     poin: 0,
     koin: 0,
     level: 0,
@@ -900,8 +940,12 @@ function createDefaultAccount(id, name, avatarName) {
     games: 0,
     correct: 0,
     answered: 0,
+    streak: 1,
+    lastActiveDate: new Date().toISOString().split("T")[0],
+    lastSpinDate: "",
+    lastWrongItems: [],
     missionClaimed: false,
-    levels: [{ stars: 0 }, { stars: 0 }, { stars: 0 }],
+    levels: [{ stars: 0 }, { stars: 0 }, { stars: 0 }, { stars: 0 }, { stars: 0 }, { stars: 0 }],
     cats: { organik: 0, daur: 0, b3: 0, residu: 0 },
     weekly: [0, 0, 0, 0, 0]
   };
@@ -1027,12 +1071,34 @@ function showPage(page) {
 /* ---------------- Sidebar / topbar ---------------- */
 const levelName = () => getLevelTier(state.poin).name;
 
+function updateDailyStreak() {
+  const today = new Date().toISOString().split("T")[0];
+  if (!state.lastActiveDate) {
+    state.lastActiveDate = today;
+    state.streak = 1;
+  } else if (state.lastActiveDate !== today) {
+    const lastDate = new Date(state.lastActiveDate);
+    const currDate = new Date(today);
+    const diffDays = Math.round((currDate - lastDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      state.streak = (state.streak || 1) + 1;
+    } else if (diffDays > 1) {
+      state.streak = 1;
+    }
+    state.lastActiveDate = today;
+  }
+}
+
 function renderShell() {
+  updateDailyStreak();
   updateLevel();
   const tier = getLevelTier(state.poin);
-  const streakEl = $("#streak");
-  if (streakEl) streakEl.textContent = `${state.streak} hari`;
+  const streakDaysEl = $("#streakDays");
+  if (streakDaysEl) streakDaysEl.textContent = `${state.streak || 1} Hari`;
   $("#poinTop").textContent = fmt(state.poin);
+
+  const missionCountNote = $("#missionCountNote");
+  if (missionCountNote) missionCountNote.textContent = `${LEVELS.length} level aktif`;
 
   const span = tier.max - tier.min;
   const inTier = Math.max(0, state.poin - tier.min);
@@ -1050,7 +1116,8 @@ function renderShell() {
 
   renderLeaderboard();
   const topAva = $("#topAva");
-  if (topAva) topAva.innerHTML = avatar(currentUser.avatar || "aris");
+  if (topAva) topAva.innerHTML = avatar(currentUser.avatar || "aris", 40, state.accessory);
+  renderImpactCalculator();
 }
 
 function renderLeaderboard() {
@@ -1090,6 +1157,242 @@ function renderChips() {
   }).join("");
 }
 
+
+/* ---------------- Data Detail Khusus Item Ensiklopedia ---------------- */
+const ENCYCLOPEDIA_ITEM_DATABASE = {
+  organik: [
+    {
+      name: "Sisa Nasi & Sayur",
+      icon: "🍚",
+      traits: "Tinggi karbohidrat, air, dan nitrogen (materi hijau)",
+      science: "Mudah terurai bakteri anaerobik/aerobik. Menjadi sumber makanan larva Maggot BSF atau biopori.",
+      decomp: "2 – 4 Minggu",
+      recycle: "Pengomposan rumah tangga / biopori / pakan ternak terfermentasi",
+      confusing: "Nasi berminyak pekat sebaiknya dicampur serbuk kayu/daun kering agar tidak bau",
+      ecoTip: "Ambil porsi makan secukupnya untuk mencegah timbulan sampah organik (Food Waste Prevention)"
+    },
+    {
+      name: "Kulit Buah & Sayuran",
+      icon: "🍌",
+      traits: "Kaya vitamin, kalium, dan serat selulosa alami",
+      science: "Mikroorganisme tanah mengurai selulosa menjadi humus gembur penyubur akar tanaman.",
+      decomp: "1 – 2 Bulan",
+      recycle: "Pembuatan Eco-Enzyme (cairan pembersih alami serbaguna) & pupuk kompos",
+      confusing: "Biji buah yang sangat keras (alpukat/mangga) butuh waktu lebih lama terurai, cacah terlebih dahulu",
+      ecoTip: "Kulit jeruk dan nanas sangat baik dibuat Eco-Enzyme yang wangi dan bebas kimia sintetis"
+    },
+    {
+      name: "Daun Kering & Ranting",
+      icon: "🍂",
+      traits: "Serat lignin dan karbon cokelat (C) yang kering dan renyah",
+      science: "Berfungsi sebagai penyeimbang rasio C/N dalam komposter dan menjaga sirkulasi oksigen.",
+      decomp: "2 – 6 Bulan",
+      recycle: "Mulsa penutup tanah taman sekolah & bahan kompos cokelat",
+      confusing: "Jangan pernah dibakar! Pembakaran daun kering menghasilkan asap jelaga dan karbon monoksida",
+      ecoTip: "Kumpulkan daun kering di sudut kebun sekolah untuk diolah menjadi kompos daun alami"
+    },
+    {
+      name: "Cangkang Telur & Ampas Kopi",
+      icon: "🥚",
+      traits: "Kalsium karbonat padat (cangkang) & nitrogen asam alami (kopi)",
+      science: "Cangkang telur memperkuat dinding sel tanaman, sedangkan ampas kopi memperbaiki struktur tanah.",
+      decomp: "3 – 6 Bulan",
+      recycle: "Penabur langsung pada pot tanaman atau campuran komposter",
+      confusing: "Remas cangkang telur sampai halus sebelum dimasukkan ke media tanam",
+      ecoTip: "Ampas kopi juga dapat mengusir hama semut secara alami di kebun sekolah"
+    }
+  ],
+  daur: [
+    {
+      name: "Botol Plastik PET (Kode 1)",
+      icon: "🧴",
+      traits: "Bening, ringan, tidak berbau, kedap air dan gas",
+      science: "Polietilena tereftalat adalah polimer sintetis rantai panjang yang sangat tahan dekomposisi biologis.",
+      decomp: "450 Tahun",
+      recycle: "Dicuci, dicacah jadi serpihan, dilelehkan jadi serat polyester pakaian olahraga",
+      confusing: "Label plastik PVC dan tutup botol HDPE sebaiknya dipisah jika memungkinkan",
+      ecoTip: "Kosongkan isi, bilas dengan air sedikit, lalu remas hingga pipih sebelum disetor"
+    },
+    {
+      name: "Kardus & Kertas Bersih",
+      icon: "📦",
+      traits: "Serat selulosa kayu yang mudah menyerap cairan",
+      science: "Dapat direndam menjadi bubur pulp dan dicetak ulang hingga 5–7 kali siklus daur ulang.",
+      decomp: "2 – 6 Minggu (kertas) | 2 – 5 Bulan (kardus)",
+      recycle: "Pulping industri menjadi kertas buram, karton kemasan, dan egg tray",
+      confusing: "Kardus terkena minyak atau sisa makanan tidak bisa didaur ulang karena merusak bubur kertas",
+      ecoTip: "Lipat rapi kardus bekas paket dan kumpulkan kering di wadah terpisah"
+    },
+    {
+      name: "Kaleng Minuman Aluminium",
+      icon: "🥫",
+      traits: "Logam non-ferrous ringan, anti-karat, konduktor panas baik",
+      science: "Aluminium dapat didaur ulang 100% tanpa batas tanpa mengurangi kualitas atom logamnya.",
+      decomp: "200 – 500 Tahun",
+      recycle: "Peleburan ulang menjadi kaleng baru, suku cadang sepeda, atau komponen konstruksi",
+      confusing: "Kaleng bekas cat atau pelumas kimia masuk ke limbah B3, bukan daur ulang biasa",
+      ecoTip: "Injak kaleng hingga pipih untuk menghemat ruang tempat penyimpanan Bank Sampah"
+    },
+    {
+      name: "Botol & Pecahan Kaca",
+      icon: "🍾",
+      traits: "Silika (pasir kuarsa) padat, transparan, non-reaktif, rapuh",
+      science: "Kaca tidak melepaskan senyawa berbahaya, tetapi pecahan tajam membahayakan lingkungan dan pekerja.",
+      decomp: "1 Juta Tahun (praktis tidak pernah terurai secara alami)",
+      recycle: "Peleburan dalam tungku suhu tinggi 1.500°C menjadi botol kaca baru",
+      confusing: "Bungkus pecahan kaca dengan kardus/koran tebal sebelum diserahkan demi keselamatan petugas",
+      ecoTip: "Gunakan botol kaca berkali-kali sebagai wadah air atau bumbu dapur (Reuse)"
+    }
+  ],
+  b3: [
+    {
+      name: "Baterai Kering & Aki",
+      icon: "🔋",
+      traits: "Silinder/kotak logam padat berisi pasta kimia elektrolit asam/alkali",
+      science: "Mengandung logam berat timbal (Pb), merkuri (Hg), nikel (Ni), dan kadmium (Cd) beracun tinggi.",
+      decomp: "Tidak terurai aman (meracuni biosfer selama puluhan tahun)",
+      recycle: "Ekstraksi hidrometalurgi untuk memulihkan seng dan mangan di fasilitas berizin",
+      confusing: "Baterai jam dinding dan baterai kancing remote semuanya masuk limbah B3",
+      ecoTip: "Beralihlah ke baterai isi ulang (Rechargeable) untuk memotong ratusan timbulan baterai sekali pakai"
+    },
+    {
+      name: "Lampu Neon & LED Rusak",
+      icon: "💡",
+      traits: "Tabung kaca berisi gas merkuri atau papan driver semikonduktor",
+      science: "Uap merkuri pada neon merusak sistem saraf jika terhirup saat kaca pecah.",
+      decomp: "Kaca tahan lama, uap merkuri langsung mencemari udara seketika",
+      recycle: "Pemisahan fosfor merkuri dengan distilasi vakum oleh pengolah resmi",
+      confusing: "Jangan buang lampu neon ke kantong sampah plastik biasa karena rentan pecah tertekan",
+      ecoTip: "Simpan lampu rusak dalam kotak kemasannya sebelum diserahkan ke drop-point B3"
+    },
+    {
+      name: "Obat Kedaluwarsa",
+      icon: "💊",
+      traits: "Tablet, kapsul, atau sirup senyawa farmakologi aktif",
+      science: "Jika dibuang ke toilet atau tanah, antibiotik dan hormon memicu resistensi bakteri patogen.",
+      decomp: "Senyawa kimia aktif mencemari air hingga hitungan tahun",
+      recycle: "Insinerasi suhu sangat tinggi (>1.100°C) di instalasi pengolahan limbah medis",
+      confusing: "Jangan membuang sirup obat langsung ke wastafel; campur dulu dengan tanah/ampas kopi lalu buang",
+      ecoTip: "Kembalikan obat kedaluwarsa ke fasilitas apotek atau puskesmas terdekat"
+    },
+    {
+      name: "E-Waste (Ponsel & Kabel Bekas)",
+      icon: "📱",
+      traits: "Papan PCB semikonduktor, komponen solder, dan kawat berinsulasi",
+      science: "Mengandung senyawa brominated flame retardants dan logam berat yang berbahaya bila dibakar.",
+      decomp: "Ratusan tahun pada plastik insulasi kabel",
+      recycle: "Urban mining: peleburan untuk memulihkan emas, tembaga, dan perak berharga tinggi",
+      confusing: "Jangan membakar kabel untuk mengambil tembaga karena asap dioksin sangat mematikan",
+      ecoTip: "Donasikan perangkat elektronik lama yang masih berfungsi atau serahkan ke bank sampah elektronik"
+    }
+  ],
+  residu: [
+    {
+      name: "Styrofoam (Gabus Makanan)",
+      icon: "🥡",
+      traits: "Putih, sangat ringan, berpori, mudah patah jadi butiran kecil",
+      science: "Expanded Polystyrene (EPS) mengandung 95% udara dan polistirena yang sangat sulit didaur ulang ekonomis.",
+      decomp: "Lebih dari 500 Tahun",
+      recycle: "Pengepresan dengan pelarut limonen (masih sangat terbatas teknologinya)",
+      confusing: "Styrofoam bukan daur ulang umum; masukkan ke residu dan hindari penggunaannya",
+      ecoTip: "Bawa kotak makan misting sendiri dari rumah saat jajan di kantin sekolah"
+    },
+    {
+      name: "Kertas Struk Thermal Kasir",
+      icon: "🧾",
+      traits: "Tipis, licin, berubah hitam jika dipanaskan atau digesek kuku",
+      science: "Dilapisi bahan kimia Bisphenol-A (BPA) atau BPS yang berbahaya bagi hormon manusia.",
+      decomp: "Sangat lambat karena lapisan kimia pelindung",
+      recycle: "Ditolak pabrik kertas karena merusak mutu bubur kertas daur ulang",
+      confusing: "Meskipun berbahan kertas, struk kasir TIDAK boleh masuk tong daur ulang",
+      ecoTip: "Minta struk belanja digital (e-receipt) via ponsel saat bertransaksi"
+    },
+    {
+      name: "Popok & Pembalut Bekas",
+      icon: "🧻",
+      traits: "Mengandung super absorbent polymer (SAP), serat sintetis, dan materi biologis kotor",
+      science: "Gel polimer menyerap cairan ratusan kali beratnya dan tidak dapat diurai alami.",
+      decomp: "450 – 500 Tahun",
+      recycle: "Pemusnahan terkelola di TPA sanitari atau insinerator suhu tinggi",
+      confusing: "Bungkus rapat dengan plastik atau kertas bekas sebelum dibuang agar kuman tidak menyebar",
+      ecoTip: "Bagi bayi atau keperluan sehari-hari, pertimbangkan cloth diaper (popok kain cuci ulang)"
+    },
+    {
+      name: "Plastik Sachet Berlapis Metalik",
+      icon: "🍫",
+      traits: "Plastik luar mengilap dengan lapisan foil aluminium di sisi dalam",
+      science: "Material multilayer laminate (PE + Aluminium foil) menyatu rapat dan mustahil dipisah mekanis biasa.",
+      decomp: "100 – 400 Tahun",
+      recycle: "Pembuatan Ecobrick (dipadatkan dalam botol untuk bahan bangunan) atau bahan bakar RDF",
+      confusing: "Bungkus snack dan mie instan masuk tong residu, bukan tong daur ulang plastik biasa",
+      ecoTip: "Beli makanan atau bumbu dalam kemasan besar/isi ulang untuk mengurangi jumlah sachet"
+    }
+  ]
+};
+
+function openItemDetailModal(catId, itemIdx = 0) {
+  const items = ENCYCLOPEDIA_ITEM_DATABASE[catId] || [];
+  const it = items[itemIdx];
+  if (!it) return;
+
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div style="text-align:center; padding:10px 6px 18px;">
+      <div style="font-size:42px; margin-bottom:4px;">${it.icon}</div>
+      <span class="dm-badge" style="background:#E8F5E9; color:var(--green); font-size:10px; font-weight:900; padding:4px 10px; border-radius:99px; text-transform:uppercase;">
+        Kategori ${catId.toUpperCase()}
+      </span>
+      <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:6px 0 2px;">${it.name}</h2>
+      
+      <!-- Pilihan Item Lain dalam Kategori Ini -->
+      <div class="item-detail-chip-grid">
+        ${items.map((item, idx) => `
+          <button class="item-chip-btn ${idx === itemIdx ? "active" : ""}" data-item-idx="${idx}">
+            ${item.icon} ${item.name.split(" ")[0]}
+          </button>
+        `).join("")}
+      </div>
+
+      <!-- Kotak Rincian Sains STEM Terstruktur -->
+      <div style="text-align:left; display:grid; gap:10px; margin:14px 0;">
+        <div class="dm-deep-box">
+          <h5>🔍 Ciri & Karakteristik Material:</h5>
+          <p>${it.traits}</p>
+        </div>
+        <div class="dm-deep-box">
+          <h5>🔬 Alasan Ilmiah STEM & Penguraian:</h5>
+          <p>${it.science}</p>
+        </div>
+        <div class="dm-deep-box" style="background:#FFF9E6; border-color:#FFE082;">
+          <h5 style="color:#E65100;">⏳ Estimasi Waktu Terurai:</h5>
+          <p style="color:#5D4037; font-weight:800;">${it.decomp}</p>
+        </div>
+        <div class="dm-deep-box" style="background:#F1F8F1; border-color:#C8E6C9;">
+          <h5 style="color:#205B3B;">🔄 Alur Pengolahan / Daur Ulang:</h5>
+          <p style="color:#2F5B44;">${it.recycle}</p>
+        </div>
+        <div class="dm-deep-box" style="background:#FFEBEE; border-color:#FFCDD2;">
+          <h5 style="color:#C62828;">⚠️ Sering Membingungkan:</h5>
+          <p style="color:#8C3838;">${it.confusing}</p>
+        </div>
+        <div class="dm-deep-box" style="background:#E3F2FD; border-color:#BBDEFB;">
+          <h5 style="color:#1565C0;">🌱 Tips Kebiasaan Bijak (Eco-Action):</h5>
+          <p style="color:#1E5385;">${it.ecoTip}</p>
+        </div>
+      </div>
+
+      <button class="btn-dark" data-close style="margin-top:8px;">Paham, Tutup</button>
+    </div>
+  `);
+
+  $(".item-chip-btn").forEach(btn => {
+    btn.onclick = () => {
+      soundState.play("click");
+      openItemDetailModal(catId, Number(btn.dataset.itemIdx));
+    };
+  });
+}
+
 function renderEco() {
   const list = CATEGORIES.filter(c => (filter === "semua" || c.id === filter) &&
     (!query || (c.name + " " + c.detail + " " + c.examples.join(" ")).toLowerCase().includes(query)));
@@ -1104,7 +1407,10 @@ function renderEco() {
           <div class="bar"><span style="width:${Math.min(100, count)}%"></span></div>
           <span class="lbl">${count}x</span>
         </div>
-        <button class="eco-learn" data-learn="${c.id}">Pelajari ${ico("arrow", 12)}</button>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px;">
+          <button class="eco-learn" data-learn="${c.id}">Pelajari Panduan ${ico("arrow", 12)}</button>
+          <button class="eco-card-flip-btn" data-detail-items="${c.id}">🔍 Rincian Contoh Item</button>
+        </div>
       </div>
     </article>`;
   }).join("") : `<p class="eco-empty">Tidak ada sampah yang cocok dengan pencarianmu.</p>`;
@@ -1112,6 +1418,30 @@ function renderEco() {
 
 function categoryDetail(id) {
   const c = CATEGORIES.find(x => x.id === id);
+  const decompTimeMap = {
+    organik: "2 Minggu – 6 Bulan (Cepat terurai hayati)",
+    daur: "Botol Plastik: 450 Tahun | Kaleng: 200 Tahun | Kertas: 2–6 Minggu | Kaca: 1 Juta Tahun",
+    b3: "Tidak pernah terurai aman (mengendap & meracuni biosfer tanah/air)",
+    residu: "Styrofoam: >500 Tahun | Popok & Pembalut: 450–500 Tahun | Tisu sintetis: 2–4 Minggu"
+  };
+  const decompTime = c.decompTime || decompTimeMap[id] || "Bervariasi";
+
+  const scienceReasonMap = {
+    organik: "Berasal dari siklus biogeokimia karbon dan nitrogen alam. Saat dikomposkan dengan baik, mikroba tanah mengubahnya menjadi humus penyerap air.",
+    daur: "Bahan polimer sintetik atau logam paduan yang membutuhkan energi tinggi saat diproduksi. Mendaur ulang menghemat 70–95% emisi industri.",
+    b3: "Mengandung logam berat (Pb, Hg, Cd) atau senyawa kimia reaktif yang merusak sistem saraf makhluk hidup dan mencemari akuifer air minum.",
+    residu: "Bahan multi-lapis (multilayer laminate) atau material non-biodegradable yang sulit dipisahkan secara mekanis pada fasilitas daur ulang umum."
+  };
+  const scienceReason = c.scienceReason || scienceReasonMap[id];
+
+  const recycleFlowMap = {
+    organik: "Pemilahan dari sumber ➔ Pencacahan ➔ Pengomposan / Biopori ➔ Pupuk humus kaya hara.",
+    daur: "Pengosongan & Pembilasan ➔ Pengepresan & Pengiriman ke Bank Sampah ➔ Pencucian & Pencacahan jadi serpihan ➔ Pelelehan jadi pelet/produk baru.",
+    b3: "Penyimpanan terisolasi kering ➔ Pengumpulan terpisah berlabel B3 ➔ Pengiriman ke pengolah berizin ➔ Solidifikasi & netralisasi kimiawi aman.",
+    residu: "Pembungkusan rapat aman ➔ Pengangkutan reguler ➔ Pemrosesan terkelola di TPA / insinerator modern ramah lingkungan."
+  };
+  const recycleFlow = c.recycleFlow || recycleFlowMap[id];
+
   openModal(`<button class="close" data-close>${ico("close", 20)}</button>
     <div class="dm-head">
       <div class="dm-art">${CATEGORY_ART[id]}</div>
@@ -1122,29 +1452,46 @@ function categoryDetail(id) {
       </div>
     </div>
 
+    <!-- Kotak Sains & Waktu Dekomposisi Terstruktur -->
+    <div class="dm-deep-grid">
+      <div class="dm-deep-box">
+        <h5>⏳ Waktu Terurai Alami</h5>
+        <p>${decompTime}</p>
+      </div>
+      <div class="dm-deep-box">
+        <h5>🔬 Alasan Sains STEM</h5>
+        <p>${scienceReason}</p>
+      </div>
+    </div>
+
+    <div class="dm-deep-box" style="margin-bottom:14px; background:#F1F8F1; border-color:#C8E6C9;">
+      <h5 style="color:#205B3B;">🔄 Alur Pengolahan & Daur Ulang:</h5>
+      <p style="color:#2F5B44;">${recycleFlow}</p>
+    </div>
+
     <div class="dm-section">
-      <h4><span>1</span> Ciri-cirinya</h4>
+      <h4><span>1</span> Ciri-ciri & Sifat Fisik</h4>
       <div class="dm-traits">${c.traits.map(t => `<span>${ico("check", 13)} ${t}</span>`).join("")}</div>
     </div>
 
     <div class="dm-section">
-      <h4><span>2</span> Contoh di sekitarmu</h4>
+      <h4><span>2</span> Contoh Nyata di Sekitarmu</h4>
       <div class="dm-examples">${c.exampleDetails.map(e => `<div><strong>${e.n}</strong><p>${e.d}</p></div>`).join("")}</div>
     </div>
 
     <div class="dm-section">
-      <h4><span>3</span> Cara menangani yang benar</h4>
+      <h4><span>3</span> Langkah Penanganan Benar</h4>
       <ol class="dm-steps">${c.steps.map((s, i) => `<li><b>${i + 1}</b><span>${s}</span></li>`).join("")}</ol>
     </div>
 
     <div class="dm-section">
-      <h4><span>4</span> Kenapa ini penting?</h4>
+      <h4><span>4</span> Mengapa Ini Sangat Penting?</h4>
       <p class="dm-why">${c.why}</p>
       <div class="dm-fact">${ico("bulb", 18)}<p><strong>Tahukah kamu?</strong> ${c.fact}</p></div>
     </div>
 
     <div class="dm-section">
-      <h4><span>5</span> Yang sering salah</h4>
+      <h4><span>5</span> Kesalahan yang Sering Terjadi</h4>
       <div class="dm-dont">${c.dont.map(d => `<div>${ico("close", 13)} ${d}</div>`).join("")}</div>
     </div>
 
@@ -1181,16 +1528,176 @@ function renderMissions() {
 }
 
 /* ---------------- Game ---------------- */
-function startGame(id) {
+
+/* ---------------- Particle & Confetti Celebration ---------------- */
+function launchConfetti(count = 45) {
+  const canvas = document.getElementById("particleCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ["#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#00BCD4", "#E91E63"];
+  const particles = [];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+      y: canvas.height * 0.4 + (Math.random() - 0.5) * 100,
+      vx: (Math.random() - 0.5) * 14,
+      vy: (Math.random() - 1.2) * 12,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1,
+      decay: Math.random() * 0.02 + 0.012
+    });
+  }
+  let animId;
+  function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.35; // gravitasi
+      p.alpha -= p.decay;
+      if (p.alpha > 0) {
+        alive = true;
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+    if (alive) {
+      animId = requestAnimationFrame(update);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  update();
+}
+
+/* ---------------- Mascot Expressions ---------------- */
+const mascotTips = [
+  "Baterai & limbah B3 harus dipisah agar air tanah tidak tercemar!",
+  "Mendaur ulang 1 kaleng aluminium menghemat energi setara 3 jam TV menyala!",
+  "Tahukah kamu? Plastik kresek butuh puluhan tahun untuk bisa terurai.",
+  "Sampah organik bisa disulap jadi kompos subur dan biogas ramah bumi!",
+  "Yuk kurangi sedotan plastik dan bawa tumbler sendiri ke sekolah!"
+];
+
+function setMascotSpeech(text) {
+  const el = document.getElementById("mascotSpeech");
+  if (el) {
+    el.textContent = text;
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "popIn .3s ease-out";
+  }
+}
+
+/* ---------------- Impact & Decomposition Calculator ---------------- */
+function getImpactData() {
+  const cats = state.cats || {};
+  const org = cats.organik || 0;
+  const daur = cats.daur || 0;
+  const b3 = cats.b3 || 0;
+  const residu = cats.residu || 0;
+  const total = org + daur + b3 + residu;
+
+  // Rumus STEM realistis sederhana:
+  // 1 item daur ulang ~= 0.04 kg CO2 dicegah & 0.03 kWh listrik dihemat
+  // 1 item organik ~= 0.05 kg pupuk kompos & 0.02 kg metana dicegah
+  // 1 item b3 ~= 10 liter air tanah diselamatkan dari kontaminasi
+  const co2Saved = ((daur * 0.04) + (org * 0.02)).toFixed(2);
+  const compostKg = (org * 0.05).toFixed(2);
+  const waterProtected = (b3 * 10);
+  const yearsSaved = (daur * 450) + (residu * 100);
+
+  return { total, org, daur, b3, residu, co2Saved, compostKg, waterProtected, yearsSaved };
+}
+
+function renderImpactCalculator() {
+  const row = document.getElementById("impactMetricsRow");
+  if (!row) return;
+  const im = getImpactData();
+  row.innerHTML = `
+    <div class="impact-metric-box">
+      <div class="im-ico">🌿</div>
+      <div>
+        <strong>${im.co2Saved} kg</strong>
+        <small>Estimasi CO₂ Dicegah</small>
+      </div>
+    </div>
+    <div class="impact-metric-box">
+      <div class="im-ico">🌱</div>
+      <div>
+        <strong>${im.compostKg} kg</strong>
+        <small>Potensi Kompos Subur</small>
+      </div>
+    </div>
+    <div class="impact-metric-box">
+      <div class="im-ico">💧</div>
+      <div>
+        <strong>${im.waterProtected} Liter</strong>
+        <small>Air Bersih Dilindungi</small>
+      </div>
+    </div>
+  `;
+}
+
+let currentPlayMode = "classic"; // "classic" atau "rush"
+let gameTimerInterval = null;
+
+function startGame(id, mode = null) {
+  if (mode) currentPlayMode = mode;
   const lv = LEVELS.find(l => l.id === id);
   const idx = LEVELS.findIndex(l => l.id === id);
   if (!lv) return;
-  // Level 1 selalu bisa dimainkan. Level berikutnya butuh bintang di level sebelumnya.
-  if (idx > 0 && (state.levels[idx - 1]?.stars || 0) === 0) return;
-  state.selected = id; save();
-  game = { id, i: 0, correct: 0, combo: 0, score: 0, hearts: 3, answered: false, hint: false, wrong: false, picked: null, earned: 0 };
+  // Level 1 selalu terbuka, level berikutnya butuh bintang kecuali di mode rush
+  if (currentPlayMode !== "rush" && idx > 0 && (state.levels[idx - 1]?.stars || 0) === 0) return;
+  
+  if (gameTimerInterval) clearInterval(gameTimerInterval);
+
+  state.selected = id; 
+  save();
+  
+  game = { 
+    id, 
+    mode: currentPlayMode,
+    timeLeft: currentPlayMode === "rush" ? 60 : 0,
+    i: 0, 
+    correct: 0, 
+    combo: 0, 
+    maxCombo: 0,
+    score: 0, 
+    hearts: currentPlayMode === "rush" ? 5 : 3, 
+    answered: false, 
+    hint: false, 
+    wrong: false, 
+    picked: null, 
+    earned: 0,
+    wrongList: []
+  };
+
+  if (currentPlayMode === "rush") {
+    gameTimerInterval = setInterval(() => {
+      if (game && game.timeLeft > 0 && !game.answered) {
+        game.timeLeft--;
+        const el = document.getElementById("gameTimerCount");
+        if (el) el.textContent = `${game.timeLeft}s`;
+        if (game.timeLeft <= 0) {
+          clearInterval(gameTimerInterval);
+          finishGame();
+        }
+      }
+    }, 1000);
+  }
+
   showPage("game");
   renderGame();
+  setMascotSpeech("Misi dimulai! Pilah sampah dengan cermat ya!");
 }
 
 function renderGame() {
@@ -1210,7 +1717,8 @@ function renderGame() {
           <span class="g-count">${game.i + 1}/${lv.items.length}</span>
         </div>
         <div class="g-actions">
-          <div class="g-hearts">${[0, 1, 2].map(i => `<span class="${i < game.hearts ? "" : "lost"}">${ico("heart", 14)}</span>`).join("")}</div>
+          ${game.mode === "rush" ? `<div class="g-timer" id="gameTimerBadge">⏳ <span id="gameTimerCount">${game.timeLeft}s</span></div>` : ""}
+          <div class="g-hearts">${Array.from({length: game.mode === "rush" ? 5 : 3}).map((_, i) => `<span class="${i < game.hearts ? "" : "lost"}">${ico("heart", 14)}</span>`).join("")}</div>
           <div class="g-combo ${game.combo ? "" : "off"}">${ico("shield", 12)} x${game.combo}</div>
           <div class="g-coins">${ico("coin", 14)} ${fmt(totalPts)}</div>
           <button class="g-sound-btn ${soundState.enabled ? '' : 'muted'}" id="soundToggle" title="${soundState.enabled ? 'Matikan Suara' : 'Nyalakan Suara'}">
@@ -1239,6 +1747,7 @@ function renderGame() {
         <div class="waste-card ${game.answered ? (game.wrong ? "bad" : "ok") : ""}" id="waste" draggable="${!game.answered}">
           <div class="visual">${item.svg}</div>
           <h2>${item.name} <span class="waste-sparkle">✦</span></h2>
+          ${item.tricky ? `<span class="tricky-badge">⚠️ Sampah Jebakan</span>` : ""}
           <button class="hint-chip ${game.hint ? "on" : ""}" id="hintBtn">${ico("bulb", 11)} Petunjuk</button>
         </div>
 
@@ -1316,18 +1825,39 @@ function answer(bin) {
   const item = LEVELS.find(l => l.id === game.id).items[game.i];
   game.wrong = bin !== item.bin;
   state.answered++;
+
+  const binEl = document.querySelector(`.g-bin.${bin}`);
+
   if (game.wrong) {
     soundState.play("wrong");
+    if (binEl) binEl.classList.add("shake-wrong");
     game.combo = 0;
     game.hearts--;
+    game.wrongList.push(item);
+    if (!state.lastWrongItems) state.lastWrongItems = [];
+    state.lastWrongItems.push({ item: item.name, rightBin: item.bin, chosenBin: bin });
+    setMascotSpeech(`Jangan bingung! ${item.name} seharusnya masuk ke tempat sampah ${CATEGORIES.find(c => c.id === item.bin)?.name}.`);
   } else {
     soundState.play("correct");
+    if (binEl) binEl.classList.add("squash");
     game.combo++;
-    game.earned = 100 + (game.combo - 1) * 25;
+    game.maxCombo = Math.max(game.maxCombo || 0, game.combo);
+    // Combo multiplier STEM gamifikasi
+    const multiplier = 1 + (game.combo - 1) * 0.25;
+    game.earned = Math.round(100 * multiplier);
     game.score += game.earned;
     game.correct++;
     state.correct++;
     state.cats[item.bin] = (state.cats[item.bin] || 0) + 1;
+    
+    // Luncurkan partikel kecil jika combo 3 ke atas
+    if (game.combo >= 3) {
+      launchConfetti(20);
+      setMascotSpeech(`Luar biasa! Kombo x${game.combo}! Terus jaga fokusmu!`);
+    } else {
+      setMascotSpeech(`Tepat sekali! Kamu menyelamatkan bumi selangkah demi selangkah!`);
+    }
+
     const dayIdx = Math.min(4, Math.max(0, new Date().getDay() - 1));
     if (!state.weekly || state.weekly.length !== 5) state.weekly = [0, 0, 0, 0, 0];
     state.weekly[dayIdx] = (state.weekly[dayIdx] || 0) + 1;
@@ -1337,43 +1867,895 @@ function answer(bin) {
 }
 
 function finishGame() {
+  if (gameTimerInterval) clearInterval(gameTimerInterval);
   const lv = LEVELS.find(l => l.id === game.id);
   const total = lv.items.length;
   const pct = Math.round(game.correct / total * 100);
   const stars = pct === 100 ? 3 : pct >= 67 ? 2 : pct >= 34 ? 1 : 0;
-  const coins = Math.round(30 * game.correct / total);
+  const coins = Math.round(30 * game.correct / total) + (game.mode === "rush" ? 25 : 0);
   state.poin += game.score;
   state.koin += coins;
   state.energi = Math.max(0, state.energi - 5);
   state.games++;
-  state.levels[game.id - 1].stars = Math.max(state.levels[game.id - 1].stars, stars);
+
+  if (state.levels[game.id - 1]) {
+    state.levels[game.id - 1].stars = Math.max(state.levels[game.id - 1].stars || 0, stars);
+  }
+
   updateLevel();
   save();
   renderShell();
   renderMissions();
 
   const ok = stars > 0;
-  if (ok) soundState.play("coin"); else soundState.play("wrong");
+  if (ok) {
+    soundState.play("badge");
+    launchConfetti(50);
+    setMascotSpeech(`Selamat! Kamu menyelesaikan ${lv.name} dengan gemilang!`);
+  } else {
+    soundState.play("wrong");
+    setMascotSpeech("Jangan patah semangat! Coba ulangi lagi item yang salah ya!");
+  }
+
   const next = LEVELS[game.id];
-  $("#gameRoot").innerHTML = `<div class="game-result-wrap"><div class="result">
-    <span class="badge">${ok ? "Misi selesai!" : "Coba lagi"}</span>
-    <h1>${ok ? `Keren, Pahlawan ${lv.name}!` : "Belum beruntung, jangan menyerah!"}</h1>
-    <p>${ok ? "Kamu berhasil memilah sampah dan menjaga lingkungan sekolah tetap bersih." : "Pelajari kembali jenis sampah, lalu coba misi ini lagi ya!"}</p>
-    <div class="stars">${[0, 1, 2].map(i => `<span class="${i < stars ? "on" : ""}">${ico("star", 34)}</span>`).join("")}</div>
-    <div class="stats">
-      <div><small>Akurasi</small><strong>${pct}%</strong></div>
-      <div><small>Poin</small><strong>+${fmt(game.score)}</strong></div>
-      <div><small>Koin</small><strong>+${coins}</strong></div>
-    </div>
-    <div class="actions">
-      <button class="btn-soft" id="replay">${ico("refresh", 15)} Main lagi</button>
-      ${ok && next ? `<button class="btn-dark" id="nextLevel">Level berikutnya ${ico("arrow", 14)}</button>` : ""}
-      <button class="btn-soft" id="toHome">Kembali ke beranda</button>
-    </div>
-  </div></div>`;
-  $("#replay").onclick = () => startGame(lv.id);
-  $("#nextLevel")?.addEventListener("click", () => startGame(next.id));
+  const hasWrongItems = game.wrongList && game.wrongList.length > 0;
+
+  $("#gameRoot").innerHTML = `
+    <div class="game-result-wrap">
+      <div class="result" id="summaryCardToShare">
+        <span class="badge">${ok ? (game.mode === "rush" ? "RUSH HOUR SELESAI!" : "Misi selesai!") : "Coba lagi"}</span>
+        <h1>${ok ? `Keren, Pahlawan ${lv.name}!` : "Belum beruntung, jangan menyerah!"}</h1>
+        <p>${ok ? "Sampah berhasil dipilah. Mari kita saksikan simulasi daur ulang dan dampak nyatanya!" : "Pelajari kembali petunjuk jenis sampah, lalu ulangi item yang salah ya!"}</p>
+        
+        <div class="stars">${[0, 1, 2].map(i => `<span class="${i < stars ? "on" : ""}">${ico("star", 34)}</span>`).join("")}</div>
+        
+        <div class="stats">
+          <div><small>Akurasi</small><strong>${pct}%</strong></div>
+          <div><small>Poin</small><strong>+${fmt(game.score)}</strong></div>
+          <div><small>Koin</small><strong>+${coins}</strong></div>
+        </div>
+
+        <!-- Mini-Lab Daur Ulang / Alur Pengolahan Lanjutan -->
+        <div style="background:#F7FAF5; border:1px solid #DDF2C5; border-radius:14px; padding:12px; margin:14px 0; text-align:left;">
+          <strong style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink);">
+            🔬 Mini-Lab Simulasi Daur Ulang STEM:
+          </strong>
+          <p style="font-size:11px; color:#5D7A68; margin-top:4px; line-height:1.4;">
+            • <b>Organik:</b> Masuk komposter sekolah & fermentasi biopori menjadi pupuk kompos.<br>
+            • <b>Anorganik Daur Ulang:</b> Dicacah dan dilelehkan kembali jadi pelet material baru.<br>
+            • <b>B3:</b> Diamankan di wadah khusus untuk dinetralkan fasilitas berizin.
+          </p>
+        </div>
+
+        ${hasWrongItems ? `
+          <div style="background:#FFF5F5; border:1px solid #FFD8D8; border-radius:12px; padding:10px; margin-bottom:14px; text-align:left;">
+            <strong style="font-size:11.5px; color:#C62828;">⚠️ Review Kesalahan (${game.wrongList.length} item):</strong>
+            <p style="font-size:10.5px; color:#8C3838; margin-top:2px;">
+              ${game.wrongList.map(w => `${w.name} → ${CATEGORIES.find(c => c.id === w.bin)?.name}`).join(", ")}
+            </p>
+          </div>
+        ` : ""}
+
+        <div class="actions">
+          ${hasWrongItems ? `<button class="btn-soft" id="retryWrongItems" style="background:#FFE8CC; color:#D9480F; border-color:#FFD8A8;">Ulangi Item Salah</button>` : ""}
+          <button class="btn-soft" id="replay">${ico("refresh", 15)} Main lagi</button>
+          ${ok && next ? `<button class="btn-dark" id="nextLevel">Level berikutnya ${ico("arrow", 14)}</button>` : ""}
+          <button class="btn-soft" id="toHome">Kembali ke beranda</button>
+        </div>
+      </div>
+    </div>`;
+
+  $("#replay").onclick = () => startGame(lv.id, game.mode);
+  $("#nextLevel")?.addEventListener("click", () => startGame(next.id, game.mode));
   $("#toHome").onclick = () => showPage("beranda");
+
+  const retryWrongBtn = $("#retryWrongItems");
+  if (retryWrongBtn) {
+    retryWrongBtn.onclick = () => {
+      // Buat ronde latihan singkat hanya untuk item yang salah
+      const tempLevel = { id: lv.id, name: `Latihan ${lv.name}`, items: [...game.wrongList] };
+      game.i = 0;
+      game.correct = 0;
+      game.score = 0;
+      game.hearts = 3;
+      game.answered = false;
+      game.wrongList = [];
+      renderGame();
+      setMascotSpeech("Ayo fokus! Buktikan kamu bisa memilah item-item ini dengan benar!");
+    };
+  }
+}
+
+
+/* ---------------- Mini-Game 1: Recycling & Waste-to-Value Lab ---------------- */
+const RECYCLE_SIM_DATA = {
+  plastik: {
+    name: "Botol Plastik PET",
+    icon: "🧴",
+    steps: [
+      { num: 1, title: "Sortir & Cuci Bersih", desc: "Label dilepas, botol dicuci dengan air sabun panas untuk menghilangkan residu gula & minyak." },
+      { num: 2, title: "Pencacahan (Flakes)", desc: "Botol bersih dipotong mesin pisau putar menjadi serpihan kecil berukuran 5–10 mm." },
+      { num: 3, title: "Pelelehan & Ekstrusi", desc: "Serpihan dipanaskan pada suhu ±260°C hingga meleleh, lalu dicetak menjadi biji plastik (pelet rPET)." },
+      { num: 4, title: "Produk Baru Bernilai", desc: "Biji plastik dipintal menjadi serat dakron kaos olahraga, tas daur ulang, atau botol baru!" }
+    ],
+    impact: "Menghemat 66% energi dan mengurangi 1,5 kg emisi CO₂ per 1 kg botol plastik daur ulang!"
+  },
+  kertas: {
+    name: "Kardus & Kertas Bekas",
+    icon: "📦",
+    steps: [
+      { num: 1, title: "Pulping (Bubur Kertas)", desc: "Kertas direndam dalam air dan diputar kencang hingga terurai menjadi serat selulosa murni." },
+      { num: 2, title: "De-inking & Pembersihan", desc: "Tinta dan lem dihilangkan dengan proses flotasi gelembung udara dan penyaringan berulang." },
+      { num: 3, title: "Pengepresan & Pengeringan", desc: "Bubur serat diratakan di atas anyaman kawat, diperas airnya, dan dipanaskan dengan silinder rol." },
+      { num: 4, title: "Gulungan Kertas Baru", desc: "Menghasilkan lembaran karton daur ulang, egg tray (wadah telur), atau buku tulis baru!" }
+    ],
+    impact: "1 ton kardus daur ulang menyelamatkan 17 pohon dewasa dan 26.000 liter air bersih!"
+  },
+  organik: {
+    name: "Sampah Organik Dapur",
+    icon: "🍎",
+    steps: [
+      { num: 1, title: "Pencacahan Biomassa", desc: "Sisa buah dan sayur dicacah agar luas permukaan mikroba bertambah untuk mempercepat proses." },
+      { num: 2, title: "Pencampuran Rasio C/N", desc: "Materi hijau kaya nitrogen dicampur dengan materi cokelat (daun kering/serbuk kayu) secara seimbang." },
+      { num: 3, title: "Fermentasi & Aerasi", desc: "Bakteri pengurai bekerja menaikkan suhu tumpukan hingga 55–65°C, membunuh patogen secara alami." },
+      { num: 4, title: "Kompos Humus Hitam", desc: "Menghasilkan pupuk kompos matang yang kaya nutrisi mikro dan makro untuk menghijaukan kebun!" }
+    ],
+    impact: "Mencegah pembentukan gas metana di TPA dan memperbaiki kesuburan tanah tanpa pestisida kimia."
+  }
+};
+
+let activeLabMat = "plastik";
+let activeLabStep = 0;
+
+/* ---------------- Recycling Lab 5-Stage Complete STEM Simulation ---------------- */
+const RECYCLE_LAB_5STAGES = {
+  plastik: {
+    name: "Botol Plastik PET",
+    icon: "🧴",
+    targetProducts: ["Biji Plastik rPET Serbaguna", "Serat Polyester Kain Jersey Olahraga", "Tali Pengikat Industri Ekologis"],
+    stages: [
+      {
+        num: 1,
+        title: "Pemilihan Bahan & Target Produk",
+        desc: "Botol plastik PET (kode 1) dipilih untuk diolah kembali. Target produk: Serat kain jersey sekolah ramah bumi.",
+        interact: "Bahan siap: Botol PET bening bebas pewarna pekat agar nilai daur ulang tinggi."
+      },
+      {
+        num: 2,
+        title: "Pemeriksaan Kontaminasi & Kondisi",
+        desc: "Periksa sisa cairan gula, minyak pekat, perekat lem label, dan cincin tutup botol (HDPE).",
+        interact: "Tindakan: Label dilepas manual, cairan sisa dibilas, cincin tutup dipisahkan untuk menjaga kemurnian polimer."
+      },
+      {
+        num: 3,
+        title: "Stasiun Pengolahan Mesin",
+        desc: "Proses pencucian panas (hot wash) pada 85°C, dilanjutkan pemotongan mesin pisau rotari menjadi serpihan (flakes 8 mm).",
+        interact: "Status mesin: Pisau pencacah memotong botol menjadi 1.200 serpihan siap leleh."
+      },
+      {
+        num: 4,
+        title: "Tantangan Parameter STEM",
+        desc: "Berapa suhu leleh optimal untuk ekstrusi polietilena tereftalat (PET) tanpa merusak rantai polimernya?",
+        question: "Pilih suhu ekstrusi:",
+        options: ["100°C (Kurang panas, polimer tidak leleh)", "260°C (Suhu leleh optimal PET)", "500°C (Terlalu panas, plastik terbakar)"],
+        correctOpt: 1
+      },
+      {
+        num: 5,
+        title: "Laporan Hasil Lab & Manfaat Ekologis",
+        desc: "Hasil olahan berhasil dicetak menjadi serat kain berkualitas tinggi!",
+        co2Saved: "1,8 kg CO₂ dicegah",
+        energySaved: "66% energi listrik dihemat",
+        ptsEarned: 80
+      }
+    ]
+  },
+  kertas: {
+    name: "Kardus & Kertas Bekas",
+    icon: "📦",
+    targetProducts: ["Lembaran Karton Duplex", "Egg Tray (Wadah Telur)", "Buku Catatan Kertas Daur Ulang"],
+    stages: [
+      {
+        num: 1,
+        title: "Pemilihan Bahan & Target Produk",
+        desc: "Kardus cokelat bergelombang (corrugated carton) dipilih untuk dibuat menjadi egg tray biodegradable.",
+        interact: "Bahan siap: Serat selulosa panjang dari kayu kraft yang kokoh dan mudah menyerap air."
+      },
+      {
+        num: 2,
+        title: "Pemeriksaan Kontaminasi & Kondisi",
+        desc: "Periksa lakban plastik, staples kawat besi, dan bercak minyak goreng yang menempel di kardus.",
+        interact: "Tindakan: Lakban plastik ditarik lepas dan staples dicabut agar pisau mesin pulper tidak macet."
+      },
+      {
+        num: 3,
+        title: "Stasiun Pengolahan Mesin (Pulping)",
+        desc: "Kardus direndam dalam bak air hangat dan diaduk hidropulper berkecepatan tinggi menjadi bubur bubur serat kertas.",
+        interact: "Status mesin: Serat selulosa terurai sempurna menjadi bubur pulp siap cetak."
+      },
+      {
+        num: 4,
+        title: "Tantangan Parameter STEM",
+        desc: "Berapa rasio perbandingan air dan serat kertas ideal dalam tangki pulper untuk pembentukan lembaran seragam?",
+        question: "Pilih konsistensi pulp:",
+        options: ["1% serat, 99% air (Terlalu encer)", "4% serat, 96% air (Konsistensi optimal)", "50% serat, 50% air (Terlalu kental, mesin macet)"],
+        correctOpt: 1
+      },
+      {
+        num: 5,
+        title: "Laporan Hasil Lab & Manfaat Ekologis",
+        desc: "Bubur dicetak vacum dan dipanaskan menjadi wadah karton telur yang ramah lingkungan!",
+        co2Saved: "0,9 kg CO₂ dicegah",
+        energySaved: "70% air bersih dihemat",
+        ptsEarned: 80
+      }
+    ]
+  },
+  organik: {
+    name: "Biomassa Sampah Organik",
+    icon: "🌱",
+    targetProducts: ["Kompos Humus Hitam Gembur", "Pupuk Organik Cair (POC)", "Briket Biomassa Energi"],
+    stages: [
+      {
+        num: 1,
+        title: "Pemilihan Bahan & Target Produk",
+        desc: "Sisa sayuran kantin dan daun kebun sekolah dipilih untuk diproses menjadi pupuk kompos humus.",
+        interact: "Bahan siap: Campuran sisa sayuran (hijau) dan daun kering kebun (cokelat)."
+      },
+      {
+        num: 2,
+        title: "Pemeriksaan Kontaminasi & Kondisi",
+        desc: "Periksa potongan plastik kresek, tusuk sate, staples bungkus nasi, dan tali rafia.",
+        interact: "Tindakan: Seluruh plastik dan staples disaring agar cacing dan mikroba tanah tidak terkontaminasi mikroplastik."
+      },
+      {
+        num: 3,
+        title: "Stasiun Pengolahan Komposter",
+        desc: "Pencacahan biomassa menjadi potongan 2–3 cm, lalu ditumpuk berlapis dalam komposter aerobik dengan aerasi udara.",
+        interact: "Status komposter: Mikroba aerobik mulai mengurai gula dan protein menghasilkan panas 60°C."
+      },
+      {
+        num: 4,
+        title: "Tantangan Parameter STEM",
+        desc: "Berapa rasio Karbon dan Nitrogen (C/N ratio) yang seimbang untuk pengomposan cepat tanpa bau menyengat?",
+        question: "Pilih perbandingan C : N:",
+        options: ["10 : 1 (Terlalu basah, timbul bau amonia)", "30 : 1 (Keseimbangan C/N sempurna)", "100 : 1 (Terlalu kering, mikroba berhenti tumbuh)"],
+        correctOpt: 1
+      },
+      {
+        num: 5,
+        title: "Laporan Hasil Lab & Manfaat Ekologis",
+        desc: "Kompos matang beraroma tanah gembur siap menyuburkan tanaman bunga dan sayuran sekolah!",
+        co2Saved: "2,5 kg gas metana dicegah",
+        energySaved: "100% menggantikan pupuk kimia sintetis",
+        ptsEarned: 80
+      }
+    ]
+  }
+};
+
+let currentLabMaterialKey = "plastik";
+let currentLabStageIdx = 0;
+
+function openRecyclingLabModal() {
+  const labData = RECYCLE_LAB_5STAGES[currentLabMaterialKey];
+  const stage = labData.stages[currentLabStageIdx];
+
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div class="recycling-lab-container">
+      <div style="text-align:center;">
+        <span style="background:#E1F5FE; color:#0288D1; font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px; text-transform:uppercase;">
+          STEM Waste-to-Value Lab (5 Tahapan)
+        </span>
+        <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:6px 0 2px;">Simulasi Daur Ulang: ${labData.name}</h2>
+        <p style="font-size:12px; color:#5D7A68; font-weight:700;">Tahap ${stage.num} dari 5: ${stage.title}</p>
+      </div>
+
+      <!-- Pemilihan Material (Tahap 1) -->
+      ${currentLabStageIdx === 0 ? `
+        <div class="lab-material-select">
+          ${Object.keys(RECYCLE_LAB_5STAGES).map(k => {
+            const m = RECYCLE_LAB_5STAGES[k];
+            return `
+              <div class="lab-mat-btn ${k === currentLabMaterialKey ? "active" : ""}" data-change-lab-mat="${k}">
+                <div class="lab-mat-icon">${m.icon}</div>
+                <span class="lab-mat-title">${m.name}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      ` : ""}
+
+      <!-- Navigasi 5 Tahapan -->
+      <div class="lab-stage-nav">
+        ${labData.stages.map((s, i) => `
+          <span class="lab-stage-pill ${i === currentLabStageIdx ? "active" : ""}">
+            Tahap ${s.num}
+          </span>
+        `).join("")}
+      </div>
+
+      <!-- Kotak Interaksi Tahapan -->
+      <div class="lab-interactive-box">
+        <h4 style="font:700 16px 'Baloo 2', sans-serif; color:var(--ink); margin-bottom:4px;">
+          ${stage.title}
+        </h4>
+        <p style="font-size:12px; color:#5D7A68; font-weight:700; line-height:1.45; margin-bottom:12px;">
+          ${stage.desc}
+        </p>
+
+        ${stage.interact ? `
+          <div style="background:#F1F8F1; border:1px solid #C8E6C9; border-radius:12px; padding:12px; font-size:11.5px; color:#2E7D32; font-weight:800;">
+            ⚙️ ${stage.interact}
+          </div>
+        ` : ""}
+
+        ${stage.question ? `
+          <div style="margin-top:10px;">
+            <strong style="font-size:12px; color:#E65100; display:block; margin-bottom:8px;">🔬 ${stage.question}</strong>
+            <div style="display:grid; gap:8px;">
+              ${stage.options.map((opt, oIdx) => `
+                <button class="btn-soft lab-stem-opt-btn" data-opt-idx="${oIdx}" style="text-align:left; justify-content:flex-start; padding:10px 14px;">
+                  ${opt}
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
+
+        ${currentLabStageIdx === 4 ? `
+          <!-- Laporan Hasil Lab Lengkap -->
+          <div style="background:#E8F5E9; border:1.5px solid #A5D6A7; border-radius:16px; padding:16px; margin:12px 0;">
+            <strong style="font-size:13px; color:var(--green); display:block;">📋 Laporan Ekologis Daur Ulang:</strong>
+            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:8px;">
+              <div style="background:#FFF; padding:8px 12px; border-radius:10px; border:1px solid #C8E6C9;">
+                <small style="font-size:9.5px; color:#78909C; font-weight:800; display:block;">PENGURANGAN EMISI</small>
+                <strong style="font-size:14px; color:#2E7D32;">${stage.co2Saved}</strong>
+              </div>
+              <div style="background:#FFF; padding:8px 12px; border-radius:10px; border:1px solid #C8E6C9;">
+                <small style="font-size:9.5px; color:#78909C; font-weight:800; display:block;">PENGHEMATAN ENERGI</small>
+                <strong style="font-size:14px; color:#0288D1;">${stage.energySaved}</strong>
+              </div>
+            </div>
+          </div>
+        ` : ""}
+      </div>
+
+      <!-- Tombol Aksi Kontrol Tahap -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+        <button class="btn-soft" id="btnPrevLab5Stage" ${currentLabStageIdx === 0 ? "disabled" : ""}>
+          ← Tahap Sebelumnya
+        </button>
+        ${currentLabStageIdx === 4 ? `
+          <button class="btn-dark" id="btnFinishLab5Stage" style="background:#2E7D32;">
+            Selesai & Klaim +${stage.ptsEarned} Poin!
+          </button>
+        ` : `
+          <button class="btn-dark" id="btnNextLab5Stage">
+            Lanjut ke Tahap ${currentLabStageIdx + 2} →
+          </button>
+        `}
+      </div>
+    </div>
+  `);
+
+  $("[data-change-lab-mat]").forEach(btn => {
+    btn.onclick = () => {
+      currentLabMaterialKey = btn.dataset.changeLabMat;
+      currentLabStageIdx = 0;
+      soundState.play("click");
+      openRecyclingLabModal();
+    };
+  });
+
+  const nextBtn = document.getElementById("btnNextLab5Stage");
+  if (nextBtn) {
+    nextBtn.onclick = () => {
+      if (currentLabStageIdx < 4) {
+        currentLabStageIdx++;
+        soundState.play("correct");
+        openRecyclingLabModal();
+      }
+    };
+  }
+
+  const prevBtn = document.getElementById("btnPrevLab5Stage");
+  if (prevBtn) {
+    prevBtn.onclick = () => {
+      if (currentLabStageIdx > 0) {
+        currentLabStageIdx--;
+        soundState.play("click");
+        openRecyclingLabModal();
+      }
+    };
+  }
+
+  $(".lab-stem-opt-btn").forEach(btn => {
+    btn.onclick = () => {
+      const oIdx = Number(btn.dataset.optIdx);
+      if (oIdx === stage.correctOpt) {
+        soundState.play("badge");
+        launchConfetti(25);
+        alert("Jawaban Tepat! Keputusan parameter STEM kamu sangat akurat untuk efisiensi daur ulang.");
+        if (currentLabStageIdx < 4) {
+          currentLabStageIdx++;
+          openRecyclingLabModal();
+        }
+      } else {
+        soundState.play("wrong");
+        alert("Kurang tepat. Perhatikan kembali sifat fisik dan suhu proses bahan.");
+      }
+    };
+  });
+
+  const finishBtn = document.getElementById("btnFinishLab5Stage");
+  if (finishBtn) {
+    finishBtn.onclick = () => {
+      closeModal();
+      state.poin += stage.ptsEarned;
+      state.koin = (state.koin || 0) + 20;
+      save();
+      renderShell();
+      soundState.play("badge");
+      launchConfetti(55);
+      setMascotSpeech("Luar biasa! Kamu menyelesaikan 5 Tahap Pengolahan Daur Ulang STEM!");
+
+      openModal(`
+        <button class="close" data-close>${ico("close", 20)}</button>
+        <div style="text-align:center; padding:18px 12px;">
+          <div style="font-size:42px; margin-bottom:8px;">🏅</div>
+          <span style="background:#E8F5E9; color:var(--green); font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px;">
+            SERTIFIKASI LAB SELESAI
+          </span>
+          <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:8px 0 4px;">Pahlawan Daur Ulang STEM</h2>
+          <p style="font-size:12px; color:#5D7A68; font-weight:700;">
+            Kamu telah berhasil menguasai 5 tahapan konversi limbah menjadi produk baru bernilai tinggi!
+          </p>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:16px;">
+            <button class="btn-soft" id="btnRepeatLabSame">Ulangi Bahan Ini</button>
+            <button class="btn-dark" data-close>Lanjut Eksplorasi</button>
+          </div>
+        </div>
+      `);
+
+      const repeatBtn = document.getElementById("btnRepeatLabSame");
+      if (repeatBtn) {
+        repeatBtn.onclick = () => {
+          currentLabStageIdx = 0;
+          soundState.play("click");
+          openRecyclingLabModal();
+        };
+      }
+    };
+  }
+}
+
+
+/* ---------------- Mini-Game 2: Spot the Mistake (Temukan Kesalahan) ---------------- */
+const MISTAKE_SCENARIOS = [
+  {
+    title: "Skenario Tempat Sampah Kantin Sekolah",
+    desc: "Ada satu item yang salah masuk ke tempat sampah Daur Ulang. Bisakah kamu menemukannya?",
+    bins: [
+      {
+        binId: "daur",
+        binName: "Tempat Sampah Daur Ulang (Kuning/Biru)",
+        items: [
+          { name: "Botol Plastik Bersih", isMistake: false },
+          { name: "Kertas Struk Thermal", isMistake: true, reason: "Kertas struk belanja mengandung zat kimia BPA/BPS yang mengkontaminasi bubur daur ulang. Harusnya masuk tong Residu!" },
+          { name: "Kardus Paket Bersih", isMistake: false }
+        ]
+      },
+      {
+        binId: "organik",
+        binName: "Tempat Sampah Organik (Hijau)",
+        items: [
+          { name: "Kulit Pisang", isMistake: false },
+          { name: "Sisa Apel", isMistake: false }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Skenario Tempat Sampah Kelas",
+    desc: "Perhatikan tempat sampah Organik ini! Ada benda berbahaya yang tidak boleh ada di sini.",
+    bins: [
+      {
+        binId: "organik",
+        binName: "Tempat Sampah Organik (Hijau)",
+        items: [
+          { name: "Daun Kering Kebun", isMistake: false },
+          { name: "Baterai Jam Dinding Bekas", isMistake: true, reason: "Baterai adalah limbah B3 beracun! Logam beratnya meracuni mikroba kompos dan mencemari tanah. Harusnya masuk tong B3!" },
+          { name: "Cangkang Telur", isMistake: false }
+        ]
+      },
+      {
+        binId: "residu",
+        binName: "Tempat Sampah Residu (Abu-abu)",
+        items: [
+          { name: "Tisu Kotor", isMistake: false },
+          { name: "Puntung Rokok", isMistake: false }
+        ]
+      }
+    ]
+  }
+];
+
+let curMistakeScenario = 0;
+
+function openSpotMistakeModal() {
+  const scen = MISTAKE_SCENARIOS[curMistakeScenario];
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div class="mistake-scene-card">
+      <span style="background:#FCE4EC; color:#C2185B; font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px; text-transform:uppercase;">Game Analisis Kritis</span>
+      <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:6px 0 2px;">Temukan Sampah yang Salah Tempat!</h2>
+      <p style="font-size:12px; color:#5D7A68; font-weight:700;">${scen.desc}</p>
+
+      <div class="mistake-bin-station">
+        ${scen.bins.map(b => `
+          <div class="mistake-bin-column">
+            <h4 class="mistake-bin-title">${b.binName}</h4>
+            <div>
+              ${b.items.map((it, idx) => `
+                <div class="mistake-item-pill" data-mistake-bin="${b.binId}" data-mistake-idx="${idx}">
+                  <span>${it.name}</span>
+                  <span style="font-size:10px; color:#9E9E9E;">Pilih ➔</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+
+      <p style="font-size:11px; color:#78909C; font-weight:700;">Klik pada nama sampah yang menurutmu keliru diletakkan di tempat sampah tersebut.</p>
+    </div>
+  `);
+
+  $(".mistake-item-pill").forEach(pill => {
+    pill.onclick = () => {
+      const bId = pill.dataset.mistakeBin;
+      const idx = Number(pill.dataset.mistakeIdx);
+      const binData = scen.bins.find(b => b.binId === bId);
+      const item = binData.items[idx];
+
+      if (item.isMistake) {
+        soundState.play("correct");
+        launchConfetti(40);
+        state.poin += 75;
+        save();
+        renderShell();
+        pill.classList.add("found-mistake");
+
+        openModal(`
+          <button class="close" data-close>${ico("close", 20)}</button>
+          <div style="text-align:center; padding:18px 12px;">
+            <div style="font-size:40px; margin-bottom:8px;">🎯</div>
+            <span style="background:#E8F5E9; color:var(--green); font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px;">ANALISIS TEPAT! +75 POIN</span>
+            <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:8px 0 4px;">${item.name} Memang Salah Tempat!</h2>
+            <div style="background:#FFF8E1; border:1px solid #FFE082; border-radius:14px; padding:14px; margin:14px 0; text-align:left;">
+              <strong style="font-size:12px; color:#E65100; display:block;">💡 Alasan Sains & Lingkungan:</strong>
+              <p style="font-size:11.5px; color:#5D4037; margin-top:4px; line-height:1.45;">${item.reason}</p>
+            </div>
+            <button class="btn-dark" id="btnNextMistakeScenario">
+              ${curMistakeScenario < MISTAKE_SCENARIOS.length - 1 ? "Skenario Berikutnya →" : "Selesai & Keren!"}
+            </button>
+          </div>
+        `);
+
+        const nextScenBtn = document.getElementById("btnNextMistakeScenario");
+        if (nextScenBtn) {
+          nextScenBtn.onclick = () => {
+            if (curMistakeScenario < MISTAKE_SCENARIOS.length - 1) {
+              curMistakeScenario++;
+              openSpotMistakeModal();
+            } else {
+              curMistakeScenario = 0;
+              closeModal();
+            }
+          };
+        }
+      } else {
+        soundState.play("wrong");
+        alert(`Belum tepat. "${item.name}" sudah berada di tempat sampah yang benar. Coba teliti item lainnya!`);
+      }
+    };
+  });
+}
+
+
+/* ---------------- Mini-Game 3: Decomp Race (Timeline Challenge) ---------------- */
+const DECOMP_RACE_SETS = [
+  {
+    title: "Tantangan Waktu Penguraian: Kantin Sekolah",
+    items: [
+      { name: "Sisa Apel", icon: "🍎", time: "2 – 4 Minggu", val: 1 },
+      { name: "Kardus Snack", icon: "📦", time: "2 Bulan", val: 2 },
+      { name: "Kaleng Minuman", icon: "🥫", time: "200 Tahun", val: 3 },
+      { name: "Botol Plastik", icon: "🧴", time: "450 Tahun", val: 4 }
+    ],
+    science: "Dekomposisi sangat dipengaruhi oleh keberadaan oksigen, mikroorganisme tanah, kelembapan, dan ikatan polimer kimia bahan."
+  },
+  {
+    title: "Tantangan Waktu Penguraian: Pantai & Pesisir",
+    items: [
+      { name: "Kulit Pisang", icon: "🍌", time: "1 Bulan", val: 1 },
+      { name: "Kertas Koran", icon: "📰", time: "6 Minggu", val: 2 },
+      { name: "Styrofoam", icon: "🥡", time: "500 Tahun", val: 3 },
+      { name: "Botol Kaca", icon: "🍾", time: "1 Juta Tahun", val: 4 }
+    ],
+    science: "Bahan anorganik seperti kaca dan styrofoam memiliki struktur molekul yang tidak dapat diuraikan oleh enzim mikroba alami."
+  }
+];
+
+let curDecompSet = 0;
+let userDecompOrder = [];
+
+function openDecompRaceModal() {
+  const currentSet = DECOMP_RACE_SETS[curDecompSet];
+  userDecompOrder = [];
+
+  function renderDecompScreen() {
+    openModal(`
+      <button class="close" data-close>${ico("close", 20)}</button>
+      <div class="decomp-race-modal">
+        <span style="background:#FFF3E0; color:#E65100; font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px; text-transform:uppercase;">
+          STEM Timeline Challenge
+        </span>
+        <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:6px 0 2px;">${currentSet.title}</h2>
+        <p style="font-size:12px; color:#5D7A68; font-weight:700;">
+          Klik kartu sampah secara berurutan mulai dari yang <strong>PALING CEPAT TERURAI</strong> hingga yang <strong>PALING LAMA</strong>!
+        </p>
+
+        <div class="decomp-cards-grid">
+          ${currentSet.items.map((it, idx) => {
+            const orderIdx = userDecompOrder.indexOf(idx);
+            const isSelected = orderIdx !== -1;
+            return `
+              <div class="decomp-card-item ${isSelected ? "selected" : ""}" data-decomp-idx="${idx}">
+                ${isSelected ? `<div class="decomp-card-order-badge">${orderIdx + 1}</div>` : ""}
+                <div class="decomp-card-icon">${it.icon}</div>
+                <div class="decomp-card-name">${it.name}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:10px;">
+          <button class="btn-soft" id="btnResetDecompOrder">Reset Urutan</button>
+          <button class="btn-dark" id="btnCheckDecompOrder" ${userDecompOrder.length === currentSet.items.length ? "" : "disabled"}>
+            Periksa Garis Waktu ${ico("arrow", 12)}
+          </button>
+        </div>
+      </div>
+    `);
+
+    $(".decomp-card-item").forEach(card => {
+      card.onclick = () => {
+        const idx = Number(card.dataset.decompIdx);
+        if (!userDecompOrder.includes(idx)) {
+          userDecompOrder.push(idx);
+          soundState.play("click");
+          renderDecompScreen();
+        }
+      };
+    });
+
+    const resetBtn = document.getElementById("btnResetDecompOrder");
+    if (resetBtn) {
+      resetBtn.onclick = () => {
+        userDecompOrder = [];
+        soundState.play("click");
+        renderDecompScreen();
+      };
+    }
+
+    const checkBtn = document.getElementById("btnCheckDecompOrder");
+    if (checkBtn) {
+      checkBtn.onclick = () => {
+        // Cek urutan
+        const isCorrect = userDecompOrder.every((itemIdx, i) => currentSet.items[itemIdx].val === i + 1);
+        const sortedItems = [...currentSet.items].sort((a, b) => a.val - b.val);
+
+        if (isCorrect) {
+          soundState.play("badge");
+          launchConfetti(45);
+          state.poin += 60;
+          save();
+          renderShell();
+        } else {
+          soundState.play("wrong");
+        }
+
+        openModal(`
+          <button class="close" data-close>${ico("close", 20)}</button>
+          <div style="text-align:center; padding:14px 8px 18px;">
+            <div style="font-size:42px; margin-bottom:6px;">${isCorrect ? "🎉" : "📚"}</div>
+            <span style="background:${isCorrect ? "#E8F5E9" : "#FFF3E0"}; color:${isCorrect ? "var(--green)" : "#E65100"}; font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px;">
+              ${isCorrect ? "SEMPURNA! +60 POIN TIMELINE" : "PELAJARI GARIS WAKTU NYATANYA"}
+            </span>
+            <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:6px 0 2px;">
+              ${isCorrect ? "Urutan Dekomposisi 100% Tepat!" : "Hampir Benar! Ini Garis Waktu yang Tepat:"}
+            </h2>
+
+            <div class="decomp-timeline-result">
+              ${sortedItems.map((s, i) => `
+                <div class="decomp-timeline-row">
+                  <div class="decomp-card-order-badge" style="background:#2E7D32;">${i + 1}</div>
+                  <span style="font-size:22px;">${s.icon}</span>
+                  <strong style="font-size:13px; color:var(--ink); flex:1;">${s.name}</strong>
+                  <span class="decomp-timeline-time">⏳ ${s.time}</span>
+                </div>
+              `).join("")}
+            </div>
+
+            <div style="background:#F7FAF5; border:1px solid #DDF2C5; border-radius:12px; padding:12px; text-align:left; margin-bottom:14px;">
+              <strong style="font-size:11.5px; color:var(--green); display:block;">💡 Penjelasan Ilmiah STEM:</strong>
+              <p style="font-size:11px; color:#5D7A68; line-height:1.4; margin-top:2px;">${currentSet.science}</p>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:10px;">
+              <button class="btn-soft" id="btnNextDecompSet">
+                ${curDecompSet < DECOMP_RACE_SETS.length - 1 ? "Tantangan Berikutnya →" : "Ulangi Latihan"}
+              </button>
+              <button class="btn-dark" data-close>Tutup & Lanjut</button>
+            </div>
+          </div>
+        `);
+
+        const nextSetBtn = document.getElementById("btnNextDecompSet");
+        if (nextSetBtn) {
+          nextSetBtn.onclick = () => {
+            curDecompSet = (curDecompSet + 1) % DECOMP_RACE_SETS.length;
+            soundState.play("click");
+            openDecompRaceModal();
+          };
+        }
+      };
+    }
+  }
+
+  renderDecompScreen();
+}
+
+
+/* ---------------- Mini-Game 4: Zero-Waste Swap (Smart Choice) ---------------- */
+const ZERO_WASTE_SCENARIOS = [
+  {
+    title: "Membeli Minuman di Kantin Sekolah",
+    desc: "Saat jam istirahat sekolah, kamu ingin membeli es teh manis segar. Pilihan manakah yang paling ramah lingkungan?",
+    icon: "🧃",
+    options: [
+      {
+        icon: "🥤",
+        title: "Beli Minuman Cup Plastik Sekali Pakai",
+        isBest: false,
+        waste: "Menghasilkan 1 cup plastik + 1 sedotan yang butuh 450 tahun terurai.",
+        impact: "Menghasilkan sampah plastik baru yang berakhir di TPA."
+      },
+      {
+        icon: "🍶",
+        title: "Bawa Tumbler Sendiri & Isi Ulang di Kantin",
+        isBest: true,
+        waste: "Nol sampah plastik sekali pakai (Zero-Waste).",
+        impact: "Menghemat uang jajan dan mencegah ratusan timbulan gelas plastik per semester!"
+      },
+      {
+        icon: "🧃",
+        title: "Beli Minuman Kotak Tetra Pak dengan Sedotan",
+        isBest: false,
+        waste: "Kemasan berlapis foil dan plastik yang sulit dipisahkan mesin daur ulang lokal.",
+        impact: "Sebagian besar berakhir di tempat sampah residu."
+      }
+    ]
+  },
+  {
+    title: "Berbelanja Kebutuhan di Koperasi / Toko",
+    desc: "Kamu membeli beberapa buku tulis dan perlengkapan sekolah di koperasi. Alternatif manakah yang terbaik?",
+    icon: "🛍️",
+    options: [
+      {
+        icon: "🛍️",
+        title: "Minta Kantong Kresek Baru untuk Wadah",
+        isBest: false,
+        waste: "Menambah konsumsi plastik sekali pakai yang mudah terbang mencemari saluran air.",
+        impact: "Memicu polusi mikroplastik di selokan sekolah."
+      },
+      {
+        icon: "🎒",
+        title: "Masukkan Langsung ke Tas Ransel / Pakai Totebag Kain",
+        isBest: true,
+        waste: "Bebas plastik tambahan 100%.",
+        impact: "Menerapkan prinsip Reduce murni dari sumber sebelum sampah terbentuk!"
+      }
+    ]
+  }
+];
+
+let curSwapIdx = 0;
+
+function openZeroWasteSwapModal() {
+  const scen = ZERO_WASTE_SCENARIOS[curSwapIdx];
+
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div class="swap-scenario-card">
+      <div style="font-size:38px; margin-bottom:4px;">${scen.icon}</div>
+      <span style="background:#E8F5E9; color:#2E7D32; font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px; text-transform:uppercase;">
+        Smart Choice: Reduce & Reuse
+      </span>
+      <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:6px 0 2px;">${scen.title}</h2>
+      <p style="font-size:12px; color:#5D7A68; font-weight:700;">${scen.desc}</p>
+
+      <div class="swap-options-list">
+        ${scen.options.map((opt, idx) => `
+          <button class="swap-option-btn" data-swap-opt="${idx}">
+            <div class="swap-option-icon">${opt.icon}</div>
+            <div class="swap-option-info">
+              <strong>${opt.title}</strong>
+              <p>Pilih alternatif ini untuk melihat analisis dampaknya ➔</p>
+            </div>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `);
+
+  $(".swap-option-btn").forEach(btn => {
+    btn.onclick = () => {
+      const idx = Number(btn.dataset.swapOpt);
+      const opt = scen.options[idx];
+
+      if (opt.isBest) {
+        soundState.play("badge");
+        launchConfetti(45);
+        state.poin += 50;
+        save();
+        renderShell();
+      } else {
+        soundState.play("wrong");
+      }
+
+      openModal(`
+        <button class="close" data-close>${ico("close", 20)}</button>
+        <div style="text-align:center; padding:14px 8px 18px;">
+          <div style="font-size:42px; margin-bottom:6px;">${opt.isBest ? "🌟" : "💡"}</div>
+          <span style="background:${opt.isBest ? "#E8F5E9" : "#FFF3E0"}; color:${opt.isBest ? "var(--green)" : "#E65100"}; font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px;">
+            ${opt.isBest ? "PILIHAN CERDAS ZERO-WASTE! +50 POIN" : "ANALISIS DAMPAK KEBIASAAN"}
+          </span>
+          <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:8px 0 4px;">${opt.title}</h2>
+
+          <div style="background:#F7FAF5; border:1px solid #DDF2C5; border-radius:14px; padding:14px; margin:14px 0; text-align:left;">
+            <div style="margin-bottom:8px;">
+              <strong style="font-size:12px; color:#D9480F;">🗑️ Dampak Sampah:</strong>
+              <p style="font-size:11.5px; color:#5D7A68; margin-top:2px;">${opt.waste}</p>
+            </div>
+            <div>
+              <strong style="font-size:12px; color:var(--green);">🌍 Manfaat Sumber Daya:</strong>
+              <p style="font-size:11.5px; color:#5D7A68; margin-top:2px;">${opt.impact}</p>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:center; gap:10px;">
+            <button class="btn-soft" id="btnNextSwapScenario">
+              ${curSwapIdx < ZERO_WASTE_SCENARIOS.length - 1 ? "Skenario Berikutnya →" : "Ulangi Latihan"}
+            </button>
+            <button class="btn-dark" data-close>Tutup & Lanjut</button>
+          </div>
+        </div>
+      `);
+
+      const nextSwapBtn = document.getElementById("btnNextSwapScenario");
+      if (nextSwapBtn) {
+        nextSwapBtn.onclick = () => {
+          curSwapIdx = (curSwapIdx + 1) % ZERO_WASTE_SCENARIOS.length;
+          soundState.play("click");
+          openZeroWasteSwapModal();
+        };
+      }
+    };
+  });
 }
 
 /* ---------------- Quiz ---------------- */
@@ -1384,11 +2766,39 @@ function renderQuiz() {
     const userCorrect = state.lastQuizCorrect || 0;
     c.innerHTML = `<div class="quiz-done">
       <div class="medal">${ico("trophy", 32)}</div>
-      <h2>Kuis Selesai!</h2>
-      <p>Kamu berhasil menjawab <strong>${userCorrect} dari ${QUIZ.length}</strong> pertanyaan dengan tepat.</p>
-      <div class="quiz-score-badge">+${userScore} Poin Kuis</div>
+      <h2>Kuis Evaluasi Selesai!</h2>
+      <p>Kamu berhasil menjawab <strong>${userCorrect} dari ${QUIZ.length}</strong> studi kasus lingkungan dengan tepat.</p>
+      <div class="quiz-score-badge">+${userScore} Poin Pemahaman STEM</div>
 
-      <div class="quiz-done-actions">
+      <!-- Refleksi Belajar & Checklist Aksi Nyata (Eco-Action) -->
+      <div class="eco-action-box">
+        <strong style="font-size:13px; color:var(--green); display:flex; align-items:center; gap:6px;">
+          🌱 Refleksi & Checklist Aksi Nyata (Eco-Action):
+        </strong>
+        <p style="font-size:11px; color:#4B6B55; margin-top:2px;">
+          Jadikan pengetahuan ini aksi nyata di kelas, kantin, atau rumahmu:
+        </p>
+        <div class="eco-action-list">
+          <label class="eco-action-item">
+            <input type="checkbox" checked disabled>
+            <span>Memisahkan botol plastik dan kertas bersih sebelum dibuang</span>
+          </label>
+          <label class="eco-action-item">
+            <input type="checkbox">
+            <span>Membawa tumbler & kotak makan sendiri untuk kurangi sampah plastik sekali pakai</span>
+          </label>
+          <label class="eco-action-item">
+            <input type="checkbox">
+            <span>Mengumpulkan baterai bekas di kotak khusus limbah B3 sekolah</span>
+          </label>
+          <label class="eco-action-item">
+            <input type="checkbox">
+            <span>Memasukkan sisa kulit buah ke lubang biopori/komposter tanaman</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="quiz-done-actions" style="margin-top:18px;">
         <button class="btn-soft" id="retryQuiz">${ico("refresh", 14)} Coba kuis lagi</button>
         <button class="btn-dark" id="btnLihatPeringkat">Kembali ke Beranda ${ico("arrow", 12)}</button>
       </div>
@@ -1531,6 +2941,217 @@ function badgeData() {
     { id: "b7", n: "Ahli Kuis", d: "Selesaikan kuis harian", ok: Boolean(state.quizDone), art: "book", prog: [state.quizDone ? 1 : 0, 1] },
     { id: "b8", n: "Kolektor Bintang", d: "Kumpulkan 9 bintang", ok: stars >= 9, art: "star", prog: [Math.min(9, stars), 9] }
   ];
+}
+
+
+/* ---------------- Avatar Accessories & Profile Modal ---------------- */
+
+/* ---------------- Daily Spin / Mystery Box ---------------- */
+const MYSTERY_FACTS = [
+  "Mendaur ulang satu botol kaca dapat menghemat energi untuk menyalakan lampu 100 watt selama 4 jam!",
+  "Sampah organik di TPA menghasilkan gas metana yang 25 kali lebih kuat memerangkap panas dibanding CO2 jika tidak dikomposkan.",
+  "Setiap 1 ton kertas yang didaur ulang menyelamatkan 17 pohon dewasa dan 26.500 liter air bersih!",
+  "Di SMK Yadika Soreang, pemilahan sampah mendukung pembentukan karakter peduli lingkungan dan kebersihan sekolah.",
+  "Styrofoam tidak pernah terurai secara alami, sehingga alternatif terbaik adalah memakai wadah makanan reusable!"
+];
+
+
+/* ---------------- Onboarding / Interactive Tutorial ---------------- */
+function openOnboardingTutorial() {
+  const steps = [
+    {
+      title: "Selamat Datang di Eco-Sorter STEM!",
+      desc: "Game edukasi interaktif untuk mengenalkan pemilahan 4 jenis sampah: Organik, Daur Ulang, B3, dan Residu demi kelestarian bumi.",
+      icon: "🌍"
+    },
+    {
+      title: "Tarik atau Klik Tempat Sampah",
+      desc: "Saat bermain, baca petunjuk sampah, lalu seret (drag & drop) atau klik tombol tempat sampah yang sesuai sebelum waktu atau nyawa habis.",
+      icon: "♻️"
+    },
+    {
+      title: "Raih Kombo & Pantau Dampak Nyata",
+      desc: "Kumpulkan poin tanpa salah untuk combo berlipat ganda, dan saksikan kalkulator dampak lingkungan serta simulasi mini-lab setelah misi!",
+      icon: "🏆"
+    }
+  ];
+  let curStep = 0;
+
+  function renderStep(idx) {
+    const s = steps[idx];
+    openModal(`
+      <button class="close" data-close>${ico("close", 20)}</button>
+      <div class="onboarding-step-card">
+        <div style="font-size:48px; margin-bottom:10px;">${s.icon}</div>
+        <h3>${s.title}</h3>
+        <p>${s.desc}</p>
+        <div class="onboarding-dots">
+          ${steps.map((_, i) => `<span class="onboarding-dot ${i === idx ? "active" : ""}"></span>`).join("")}
+        </div>
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:14px;">
+          ${idx > 0 ? `<button class="btn-soft" id="onboardPrev">Kembali</button>` : ""}
+          <button class="btn-dark" id="onboardNext">
+            ${idx === steps.length - 1 ? "Mulai Petualangan!" : `Lanjut ${ico("arrow", 12)}`}
+          </button>
+        </div>
+      </div>
+    `);
+    const btnNext = document.getElementById("onboardNext");
+    if (btnNext) {
+      btnNext.onclick = () => {
+        if (idx < steps.length - 1) {
+          renderStep(idx + 1);
+        } else {
+          closeModal();
+          localStorage.setItem("ecosorter_tutorial_seen", "true");
+          setMascotSpeech("Kamu sudah siap! Ayo taklukkan Misi Level 1!");
+        }
+      };
+    }
+    const btnPrev = document.getElementById("onboardPrev");
+    if (btnPrev) {
+      btnPrev.onclick = () => renderStep(idx - 1);
+    }
+  }
+
+  renderStep(0);
+}
+
+function openDailySpinModal() {
+  const today = new Date().toISOString().split("T")[0];
+  const alreadyClaimed = state.lastSpinDate === today;
+
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div style="text-align:center; padding:12px 10px 18px;">
+      <div style="font-size:42px; margin-bottom:8px;">🎁</div>
+      <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink);">Mystery Box Edukasi Harian</h2>
+      <p style="font-size:12px; color:#5D7A68; font-weight:700; max-width:340px; margin:0 auto 16px;">
+        Buka kotak misteri setiap hari untuk mendapatkan fakta sains STEM unik dan bonus poin!
+      </p>
+
+      ${alreadyClaimed ? `
+        <div style="background:#EAF7EE; border:1px solid #C8E6C9; border-radius:14px; padding:16px; margin-bottom:14px;">
+          <strong style="color:var(--green); font-size:13px; display:block;">Kamu sudah membuka Mystery Box hari ini!</strong>
+          <p style="font-size:11.5px; color:#388E3C; margin-top:4px;">
+            Kembalilah besok untuk fakta sains dan bonus harian berikutnya.
+          </p>
+        </div>
+        <button class="btn-dark" data-close>Tutup</button>
+      ` : `
+        <div id="mysteryBoxArea" style="background:#FFF9E6; border:2px dashed #FFD54F; border-radius:16px; padding:24px; cursor:pointer; transition:transform .2s;" title="Klik untuk membuka!">
+          <div style="font-size:48px; animation:timerPulse 1s infinite alternate;">📦</div>
+          <strong style="display:block; margin-top:8px; font-size:14px; color:#E65100;">Ketuk Kotak untuk Membuka!</strong>
+        </div>
+      `}
+    </div>
+  `);
+
+  const boxArea = document.getElementById("mysteryBoxArea");
+  if (boxArea) {
+    boxArea.onclick = () => {
+      const bonusPts = 50 + Math.floor(Math.random() * 51);
+      const fact = MYSTERY_FACTS[Math.floor(Math.random() * MYSTERY_FACTS.length)];
+      state.poin += bonusPts;
+      state.koin = (state.koin || 0) + 15;
+      state.lastSpinDate = today;
+      save();
+      renderShell();
+      soundState.play("badge");
+      launchConfetti(45);
+
+      openModal(`
+        <button class="close" data-close>${ico("close", 20)}</button>
+        <div style="text-align:center; padding:12px 10px 18px;">
+          <div style="font-size:42px; margin-bottom:8px;">✨</div>
+          <span style="background:#E8F5E9; color:var(--green); font-weight:900; font-size:10px; padding:4px 10px; border-radius:99px; text-transform:uppercase;">Bonus Berhasil Dibuka!</span>
+          <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:8px 0 4px;">+${bonusPts} Poin & +15 Koin</h2>
+          <div style="background:#F7FAF5; border:1px solid #DDF2C5; border-radius:14px; padding:14px; margin:14px 0; text-align:left;">
+            <strong style="font-size:12px; color:var(--ink); display:block;">💡 Fakta Sains STEM Hari Ini:</strong>
+            <p style="font-size:11.5px; color:#5D7A68; margin-top:4px; line-height:1.45;">${fact}</p>
+          </div>
+          <button class="btn-dark" data-close>Keren, Terima Kasih!</button>
+        </div>
+      `);
+    };
+  }
+}
+
+function openProfileCustomModal() {
+  if (!state.ownedAccessories) state.ownedAccessories = ["none"];
+  const currentAcc = state.accessory || "none";
+
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div style="text-align:center; padding:10px 8px 18px;">
+      <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink);">Kustomisasi Profil & Aksesori STEM</h2>
+      <p style="font-size:12px; color:#5D7A68; font-weight:700; margin-top:2px;">
+        Koleksi aksesori ramah lingkungan menggunakan koin prestasimu!
+      </p>
+
+      <div style="margin:16px auto; display:flex; justify-content:center; align-items:center; gap:16px;">
+        <div style="width:70px; height:70px; border-radius:50%; background:#FFF; border:3px solid #63B96F; display:grid; place-items:center; box-shadow:0 6px 18px rgba(0,0,0,.08);" id="avatarPreviewCustom">
+          ${avatar(currentUser.avatar || "aris", 64, currentAcc)}
+        </div>
+        <div style="text-align:left;">
+          <strong style="font-size:15px; color:var(--ink); display:block;">${currentUser.name}</strong>
+          <span style="font-size:12px; font-weight:800; color:#D97706;">🪙 ${fmt(state.koin || 0)} Koin</span>
+          <span style="display:block; font-size:11px; color:#78909C; font-weight:700;">Aksesori Aktif: ${ACCESSORIES.find(a => a.id === currentAcc)?.name || "Standar"}</span>
+        </div>
+      </div>
+
+      <div class="avatar-custom-grid">
+        ${ACCESSORIES.map(acc => {
+          const owned = state.ownedAccessories.includes(acc.id);
+          const equipped = currentAcc === acc.id;
+          return `
+            <div class="accessory-item-btn ${equipped ? "equipped" : ""}" data-acc-id="${acc.id}">
+              <div class="accessory-icon">${acc.icon}</div>
+              <strong class="accessory-name">${acc.name}</strong>
+              <div class="accessory-status">
+                ${equipped ? "Dipakai" : owned ? "Milikmu" : `🪙 ${acc.cost}`}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      <p style="font-size:11px; color:#6C8573; line-height:1.4; margin-top:8px;">
+        Tip: Mainkan misi dan jawab kuis harian untuk mengumpulkan koin lebih banyak!
+      </p>
+    </div>
+  `);
+
+  $(".accessory-item-btn").forEach(btn => {
+    btn.onclick = () => {
+      const accId = btn.dataset.accId;
+      const acc = ACCESSORIES.find(a => a.id === accId);
+      if (!acc) return;
+      if (!state.ownedAccessories) state.ownedAccessories = ["none"];
+
+      if (state.ownedAccessories.includes(accId)) {
+        state.accessory = accId;
+        save();
+        renderShell();
+        soundState.play("click");
+        openProfileCustomModal();
+      } else {
+        if ((state.koin || 0) >= acc.cost) {
+          state.koin -= acc.cost;
+          state.ownedAccessories.push(accId);
+          state.accessory = accId;
+          save();
+          renderShell();
+          soundState.play("badge");
+          launchConfetti(35);
+          openProfileCustomModal();
+        } else {
+          soundState.play("wrong");
+          alert(`Koin belum cukup. Kamu butuh ${acc.cost} koin untuk membuka ${acc.name}.`);
+        }
+      }
+    };
+  });
 }
 
 function renderBadges() {
@@ -1681,7 +3302,51 @@ function openAccountModal() {
 $$(".side-nav button").forEach(b => b.onclick = () => showPage(b.dataset.page));
 $("#brandHome").onclick = () => showPage("beranda");
 
-$("#btnLogout").onclick = () => openAccountModal();
+$("#btnLogout").onclick = () => confirmLogoutClean();
+
+function confirmLogoutClean() {
+  openModal(`
+    <button class="close" data-close>${ico("close", 20)}</button>
+    <div style="text-align:center; padding:12px 10px 18px;">
+      <div style="width:60px; height:60px; border-radius:50%; background:#FFF3E0; color:#E65100; display:grid; place-items:center; margin:0 auto 14px;">
+        ${ico("logout", 28)}
+      </div>
+      <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin-bottom:6px;">Keluar dari Aplikasi?</h2>
+      <p style="font-size:12.5px; color:#5D7A68; font-weight:700; max-width:340px; margin:0 auto 20px;">
+        Progres permainan dan poinmu tersimpan secara otomatis. Sesi ini akan ditutup dengan bersih.
+      </p>
+      <div style="display:flex; justify-content:center; gap:10px;">
+        <button class="btn-soft" data-close>Batal</button>
+        <button class="btn-dark" id="btnConfirmLogoutAction" style="background:#C62828;">Keluar Sesi ${ico("arrow", 12)}</button>
+      </div>
+    </div>
+  `);
+  $("#btnConfirmLogoutAction").onclick = () => {
+    closeModal();
+    // Simpan progres terakhir sebelum keluar
+    save();
+    // Reset sesi aktif ke akun default pertama atau reset sesi bersih
+    localStorage.removeItem(DB_SESSION_KEY);
+    currentUser = getActiveUser();
+    state = currentUser;
+    showPage("beranda");
+    renderShell();
+    renderMissions();
+    renderEco();
+    renderStats();
+    openModal(`
+      <button class="close" data-close>${ico("close", 20)}</button>
+      <div style="text-align:center; padding:18px 12px;">
+        <div style="font-size:36px; margin-bottom:10px;">👋</div>
+        <h2 style="font:700 20px 'Baloo 2', sans-serif; color:var(--ink);">Sampai Jumpa Lagi!</h2>
+        <p style="font-size:12px; color:#5D7A68; font-weight:700; margin-top:4px;">
+          Sesi telah ditutup. Terima kasih telah menjaga lingkungan bersama Eco-Sorter STEM.
+        </p>
+        <button class="btn-dark" data-close style="margin-top:16px;">Masuk Kembali</button>
+      </div>
+    `);
+  };
+}
 
 $("#btnLanjutBelajar").onclick = () => showPage("ensiklopedia");
 $("#btnCobaKuisHome").onclick = () => {
@@ -1706,6 +3371,36 @@ $("#searchInput").addEventListener("input", e => { query = e.target.value.trim()
 $("#ecoGrid").addEventListener("click", e => {
   const b = e.target.closest("[data-learn]");
   if (b) categoryDetail(b.dataset.learn);
+
+  const itemsDetailBtn = e.target.closest("[data-detail-items]");
+  if (itemsDetailBtn) {
+    soundState.play("click");
+    openItemDetailModal(itemsDetailBtn.dataset.detailItems, 0);
+    return;
+  }
+  const factBtn = e.target.closest("[data-fact]");
+  if (factBtn) {
+    const c = CATEGORIES.find(x => x.id === factBtn.dataset.fact);
+    if (c) {
+      soundState.play("click");
+      openModal(`
+        <button class="close" data-close>${ico("close", 20)}</button>
+        <div style="text-align:center; padding:12px 10px 18px;">
+          <div style="width:64px; height:64px; border-radius:18px; margin:0 auto 12px; display:grid; place-items:center; background:#EAF5E3;">
+            ${CATEGORY_ART[c.id]}
+          </div>
+          <span class="dm-badge ${c.card}">Kategori ${c.name}</span>
+          <h2 style="font:700 22px 'Baloo 2', sans-serif; color:var(--ink); margin:8px 0 4px;">Tahukah Kamu?</h2>
+          <div style="background:#F7FAF5; border:1px solid #DDF2C5; border-radius:14px; padding:16px; margin:14px 0; text-align:left;">
+            <p style="font-size:12.5px; color:#2F4D39; font-weight:700; line-height:1.5;">${c.fact}</p>
+            <hr style="border:0; border-top:1px dashed #CFE6D3; margin:10px 0;">
+            <p style="font-size:11px; color:#5D7A68; font-weight:800;">💡 Tips STEM: ${c.tip}</p>
+          </div>
+          <button class="btn-dark" data-close>Paham, Tutup</button>
+        </div>
+      `);
+    }
+  }
 });
 $$("[data-badge-filter]").forEach(b => b.onclick = () => {
   badgeFilter = b.dataset.badgeFilter;
@@ -1842,6 +3537,1095 @@ renderChips();
 renderEco();
 renderMissions();
 renderQuiz();
+
+/* Dark Mode Init */
+const isDarkModeSaved = localStorage.getItem("ecosorter_dark_mode") === "true";
+if (isDarkModeSaved) document.body.classList.add("eco-dark");
+
+const themeToggle = document.getElementById("btnThemeToggle");
+if (themeToggle) {
+  themeToggle.onclick = () => {
+    const isDark = document.body.classList.toggle("eco-dark");
+    localStorage.setItem("ecosorter_dark_mode", isDark ? "true" : "false");
+    soundState.play("click");
+  };
+}
+
+/* Profile Access Button */
+const profileAccess = document.getElementById("btnProfileAccess");
+if (profileAccess) {
+  profileAccess.onclick = () => openProfileCustomModal();
+}
+
+/* Daily Spin Buttons */
+const dailySpinHome = document.getElementById("btnDailySpinHome");
+if (dailySpinHome) {
+  dailySpinHome.onclick = () => openDailySpinModal();
+}
+
+/* Mode Switchers */
+const modeClassic = document.getElementById("modeCardClassic");
+const modeRush = document.getElementById("modeCardRush");
+const modeLab = document.getElementById("modeCardLab");
+const modeMistake = document.getElementById("modeCardMistake");
+
+if (modeClassic && modeRush) {
+  modeClassic.onclick = () => {
+    currentPlayMode = "classic";
+    [modeClassic, modeRush, modeLab, modeMistake].forEach(m => m?.classList.remove("active-mode"));
+    modeClassic.classList.add("active-mode");
+    soundState.play("click");
+    setMascotSpeech("Mode Misi Standar aktif. Selesaikan misi dengan tenang!");
+  };
+  modeRush.onclick = () => {
+    currentPlayMode = "rush";
+    [modeClassic, modeRush, modeLab, modeMistake].forEach(m => m?.classList.remove("active-mode"));
+    modeRush.classList.add("active-mode");
+    soundState.play("click");
+    setMascotSpeech("Mode Rush Hour aktif! Kejar waktu 60 detik dengan combo berlipat!");
+  };
+}
+if (modeLab) {
+  modeLab.onclick = () => {
+    soundState.play("click");
+    openMiniGame("lab");
+  };
+}
+if (modeMistake) {
+  modeMistake.onclick = () => {
+    soundState.play("click");
+    openMiniGame("audit");
+  };
+}
+
+const modeDecomp = document.getElementById("modeCardDecomp");
+if (modeDecomp) {
+  modeDecomp.onclick = () => {
+    soundState.play("click");
+    openMiniGame("decomp");
+  };
+}
+
+const modeSwap = document.getElementById("modeCardSwap");
+if (modeSwap) {
+  modeSwap.onclick = () => {
+    soundState.play("click");
+    openMiniGame("swap");
+  };
+}
+
+/* Mascot Widget click */
+const mascotBtn = document.getElementById("mascotBtn");
+if (mascotBtn) {
+  mascotBtn.onclick = () => {
+    soundState.play("click");
+    const tip = mascotTips[Math.floor(Math.random() * mascotTips.length)];
+    setMascotSpeech(tip);
+  };
+}
+
+/* Auto Onboarding for first time visitors */
+if (!localStorage.getItem("ecosorter_tutorial_seen")) {
+  setTimeout(() => openOnboardingTutorial(), 500);
+}
+
+/* =========================================================
+   FULLSCREEN MINI-GAMES
+   ========================================================= */
+const MG_KINDS = ["audit", "decomp", "swap", "lab"];
+const MG_STATE = {
+  kind: null,
+  returnPage: "beranda",
+  audit: null,
+  decomp: null,
+  swap: null,
+  lab: null
+};
+
+function mgDefault(kind) {
+  if (kind === "audit") {
+    return { scen: 0, found: {}, nopeKey: null, feedback: null, done: false, sessionPts: 0 };
+  }
+  if (kind === "decomp") {
+    return { set: 0, order: [], selected: -1, checked: false, result: null, sessionPts: 0, rewarded: false };
+  }
+  if (kind === "swap") {
+    return { scen: 0, picked: -1, result: null, sessionPts: 0, rewarded: false };
+  }
+  return { mat: "plastik", stage: 0, question: null, running: false, result: null, sessionPts: 0, rewarded: false };
+}
+
+let mgLabTimer = null;
+
+function openMiniGame(kind) {
+  if (!MG_KINDS.includes(kind)) return;
+  if (mgLabTimer) { clearTimeout(mgLabTimer); mgLabTimer = null; }
+  MG_STATE.kind = kind;
+  MG_STATE.returnPage = document.querySelector(".side-nav button.active")?.dataset.page || "beranda";
+  MG_STATE[kind] = mgDefault(kind);
+  $("#app").hidden = true;
+  $("#gameRoot").hidden = false;
+  document.body.classList.add("mg-active");
+  renderMiniGame();
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+function exitMiniGame() {
+  if (mgLabTimer) { clearTimeout(mgLabTimer); mgLabTimer = null; }
+  MG_STATE.kind = null;
+  document.body.classList.remove("mg-active");
+  const back = MG_STATE.returnPage || "beranda";
+  $("#gameRoot").innerHTML = "";
+  $("#gameRoot").hidden = true;
+  $("#app").hidden = false;
+  showPage(back);
+}
+
+function renderMiniGame() {
+  const kind = MG_STATE.kind;
+  if (!kind) return;
+  if (kind === "audit") return mgRenderAudit();
+  if (kind === "decomp") return mgRenderDecomp();
+  if (kind === "swap") return mgRenderSwap();
+  if (kind === "lab") return mgRenderLab();
+}
+
+function mgSessionPts(kind) {
+  return (MG_STATE[kind] && MG_STATE[kind].sessionPts) || 0;
+}
+
+function mgAward(kind, pts, coins = 0) {
+  const session = MG_STATE[kind];
+  if (!session) return;
+  session.sessionPts += pts;
+  state.poin += pts;
+  if (coins) state.koin = (state.koin || 0) + coins;
+  save();
+  renderShell();
+}
+
+function mgHeader(kind, meta) {
+  const avatarKey = currentUser?.avatar || "aris";
+  return `<header class="game-top mg-top">
+    <button class="g-exit" id="mgBack">${ico("chevron-left", 13)} Keluar</button>
+    <div class="g-brand"><svg width="22" height="22"><use href="#i-logo"/></svg><span>Eco-Sorter<em>STEM</em></span></div>
+    <div class="g-levelbar">
+      <span class="g-level-badge"><i></i> ${meta.badge}</span>
+      <span class="g-level-name">${meta.name}</span>
+      <div class="g-progress"><span style="width:${Math.max(0, Math.min(100, meta.pct))}%"></span></div>
+      <span class="g-count">${meta.count}</span>
+    </div>
+    <div class="g-actions">
+      ${meta.extra || ""}
+      <div class="g-coins">${ico("coin", 14)} ${fmt(state.poin)}</div>
+      <button class="g-sound-btn ${soundState.enabled ? "" : "muted"}" id="mgSound" title="Suara">${ico(soundState.enabled ? "volume" : "volume-mute", 16)}</button>
+      <div class="g-avatar">${avatar(avatarKey)}</div>
+    </div>
+  </header>`;
+}
+
+function mgBindTop() {
+  const back = $("#mgBack");
+  if (back) back.onclick = exitMiniGame;
+  const snd = $("#mgSound");
+  if (snd) snd.onclick = () => {
+    soundState.toggle();
+    renderMiniGame();
+  };
+}
+
+function mgToast(message) {
+  const stage = document.querySelector(".mg-stage");
+  if (!stage) return;
+  const old = stage.querySelector(".mg-toast");
+  if (old) old.remove();
+  const el = document.createElement("div");
+  el.className = "mg-toast";
+  el.textContent = message;
+  stage.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+function mgBindButton(sel, fn) {
+  const el = document.querySelector(sel);
+  if (el) el.onclick = fn;
+}
+
+/* ---------------- A. Eco-Audit: Spot the Mistake ---------------- */
+const AUDIT_ICONS = {
+  "Botol Plastik Bersih": "🧴",
+  "Kertas Struk Thermal": "🧾",
+  "Kardus Paket Bersih": "📦",
+  "Kulit Pisang": "🍌",
+  "Sisa Apel": "🍎",
+  "Daun Kering Kebun": "🍂",
+  "Baterai Jam Dinding Bekas": "🔋",
+  "Cangkang Telur": "🥚",
+  "Tisu Kotor": "🧻",
+  "Puntung Rokok": "🚬"
+};
+const AUDIT_LAYOUT = [
+  {
+    bins: { daur: [13, 54], organik: [71, 58] },
+    items: {
+      "daur:0": [24, 72], "daur:1": [31, 46], "daur:2": [19, 34],
+      "organik:0": [83, 76], "organik:1": [78, 42]
+    }
+  },
+  {
+    bins: { organik: [14, 52], residu: [72, 56] },
+    items: {
+      "organik:0": [26, 74], "organik:1": [33, 44], "organik:2": [19, 31],
+      "residu:0": [84, 74], "residu:1": [80, 40]
+    }
+  }
+];
+
+function mgObjectPos(scenIdx, binId, idx) {
+  const layout = AUDIT_LAYOUT[scenIdx] || AUDIT_LAYOUT[0];
+  return layout.items[`${binId}:${idx}`] || [50, 60];
+}
+
+function mgRenderAudit() {
+  const A = MG_STATE.audit;
+  const scen = MISTAKE_SCENARIOS[A.scen];
+  const mistakes = scen.bins.reduce((n, b) => n + b.items.filter(i => i.isMistake).length, 0);
+  const foundCount = Object.keys(A.found).length;
+  const allFound = foundCount >= mistakes;
+  const layout = AUDIT_LAYOUT[A.scen] || AUDIT_LAYOUT[0];
+
+  const binsHTML = scen.bins.map(b => {
+    const pos = layout.bins[b.binId] || [20, 55];
+    return `<div class="mg-bin-island" style="left:${pos[0]}%; top:${pos[1]}%">
+      <span class="mg-bin-art">${binArt(b.binId)}</span>
+      <span class="mg-bin-label">${CATEGORIES.find(c => c.id === b.binId)?.name || b.binId}</span>
+    </div>`;
+  }).join("");
+
+  const objectsHTML = scen.bins.map(b => b.items.map((it, idx) => {
+    const key = `${b.binId}:${idx}`;
+    const pos = mgObjectPos(A.scen, b.binId, idx);
+    const found = !!A.found[key];
+    return `<button class="mg-object ${found ? "found" : ""} ${A.nopeKey === key ? "nope" : ""}"
+      style="left:${pos[0]}%; top:${pos[1]}%"
+      data-audit-bin="${b.binId}" data-audit-idx="${idx}">
+      <span class="obj-ico">${AUDIT_ICONS[it.name] || "🗑️"}</span>
+      <span class="obj-name">${it.name}</span>
+    </button>`;
+  }).join("")).join("");
+
+  let panel = "";
+  const nextLabel = A.scen < MISTAKE_SCENARIOS.length - 1 ? "Skenario berikutnya" : "Lihat hasil";
+  const nextBtn = `<button class="btn-dark sm" id="mgAuditNext">${nextLabel} ${ico("arrow", 11)}</button>`;
+  if (A.done) {
+    panel = `<div class="mg-result-sheet">
+      <div class="rs-head">
+        <span class="rs-ico">🎯</span>
+        <div><h3>Audit lingkungan selesai!</h3><p>Kamu berhasil menemukan semua kesalahan pemilahan.</p></div>
+      </div>
+      <div class="mg-rs-note" style="margin-top:10px;">Total skor sesi ini: <b>+${A.sessionPts} poin</b>. Kebiasaan teliti memilah sampah membuat lingkungan sekolah jauh lebih sehat.</div>
+      <div class="mg-rs-actions">
+        <button class="btn-soft" id="mgAuditAgain">${ico("refresh", 14)} Audit ulang</button>
+        <button class="btn-dark" id="mgAuditHome">Kembali ke beranda ${ico("arrow", 12)}</button>
+      </div>
+    </div>`;
+  } else if (A.feedback) {
+    const fb = A.feedback;
+    panel = `<div class="mg-feedback ${fb.ok ? "" : "bad"}">
+      <div class="fb-ico">${fb.ok ? ico("check", 15) : "!"}</div>
+      <div class="fb-copy">
+        <h4>${fb.ok ? `${fb.item.name} memang salah tempat!` : "Belum tepat"}</h4>
+        <p>${fb.ok ? fb.item.reason : `${fb.item.name} sudah berada di tempat sampah yang benar. Coba teliti objek lainnya!`}</p>
+      </div>
+      <div class="fb-actions">
+        ${fb.ok || allFound ? nextBtn : `<button class="btn-soft sm" id="mgAuditClose">Tutup</button>`}
+      </div>
+    </div>`;
+  } else if (allFound) {
+    panel = `<div class="mg-feedback">
+      <div class="fb-ico">${ico("check", 15)}</div>
+      <div class="fb-copy">
+        <h4>Semua kesalahan sudah ditemukan!</h4>
+        <p>Kerja bagus. Lanjut ke skenario berikutnya untuk menguji ketelitianmu lagi.</p>
+      </div>
+      <div class="fb-actions">${nextBtn}</div>
+    </div>`;
+  }
+
+  $("#gameRoot").innerHTML = `<div class="mg-page">
+    ${mgHeader("audit", {
+      badge: "Eco-Audit",
+      name: "Spot the Mistake",
+      pct: (foundCount / Math.max(1, mistakes)) * 100,
+      count: `${foundCount}/${mistakes}`,
+      extra: `<span class="mg-pill gold">${ico("search", 11)} ${foundCount}/${mistakes} kesalahan</span>`
+    })}
+    <div class="mg-stage">
+      <div class="mg-bg garden"></div>
+      <div class="mg-shade"></div>
+      <div class="mg-world">${binsHTML}${objectsHTML}</div>
+      <div class="mg-instruction">
+        <span class="mi-ico">${ico("bulb", 15)}</span>
+        <div><strong>Misi Audit</strong><p>${scen.desc} Klik objek yang kamu anggap salah tempat.</p></div>
+      </div>
+      <div class="mg-prompt">${ico("search", 11)} Temukan sampah yang salah tempat</div>
+      <div class="mg-hud-right">
+        <span class="mg-pill"><i></i> Skenario ${A.scen + 1} dari ${MISTAKE_SCENARIOS.length}</span>
+        <span class="mg-pill gold">${ico("star", 11)} +${A.sessionPts} poin</span>
+      </div>
+      <div class="mg-audit-counter">
+        <span class="ac-ico">${ico("target", 16)}</span>
+        <div><strong>${foundCount} / ${mistakes} ditemukan</strong><small>Kesalahan pemilahan</small></div>
+      </div>
+      ${panel}
+    </div>
+  </div>`;
+
+  mgBindTop();
+  $$(".mg-object").forEach(btn => {
+    btn.onclick = () => mgAuditClick(btn.dataset.auditBin, Number(btn.dataset.auditIdx));
+  });
+  mgBindButton("#mgAuditClose", () => { A.feedback = null; A.nopeKey = null; renderMiniGame(); });
+  mgBindButton("#mgAuditNext", () => {
+    if (A.scen < MISTAKE_SCENARIOS.length - 1) {
+      A.scen++;
+      A.found = {};
+      A.feedback = null;
+      A.nopeKey = null;
+      soundState.play("click");
+      renderMiniGame();
+    } else {
+      A.done = true;
+      A.feedback = null;
+      soundState.play("badge");
+      launchConfetti(55);
+      renderMiniGame();
+    }
+  });
+  mgBindButton("#mgAuditAgain", () => {
+    MG_STATE.audit = mgDefault("audit");
+    renderMiniGame();
+  });
+  mgBindButton("#mgAuditHome", exitMiniGame);
+}
+
+function mgAuditClick(binId, idx) {
+  const A = MG_STATE.audit;
+  if (!A || A.done) return;
+  const scen = MISTAKE_SCENARIOS[A.scen];
+  const bin = scen.bins.find(b => b.binId === binId);
+  const item = bin?.items[idx];
+  if (!item) return;
+  const key = `${binId}:${idx}`;
+  if (A.found[key]) return;
+
+  if (item.isMistake) {
+    A.found[key] = true;
+    A.nopeKey = null;
+    A.feedback = { ok: true, item };
+    soundState.play("correct");
+    launchConfetti(40);
+    mgAward("audit", 75);
+    setMascotSpeech(`Tepat! ${item.name} memang salah tempat.`);
+  } else {
+    A.nopeKey = key;
+    A.feedback = { ok: false, item };
+    soundState.play("wrong");
+  }
+  renderMiniGame();
+}
+
+/* ---------------- B. Decomp Race ---------------- */
+function mgRenderDecomp() {
+  const D = MG_STATE.decomp;
+  if (!Array.isArray(D.order) || D.order.length !== 4) {
+    D.order = [null, null, null, null];
+  }
+  const set = DECOMP_RACE_SETS[D.set] || DECOMP_RACE_SETS[0];
+  const placedCount = D.order.filter(v => v !== null && v !== undefined).length;
+  const trayItems = set.items
+    .map((it, idx) => ({ it, idx }))
+    .filter(x => !D.order.includes(x.idx));
+
+  const trayHTML = trayItems.length
+    ? trayItems.map(x => `<button class="mg-waste-card ${D.selected === x.idx ? "selected" : ""}"
+        draggable="true" data-item-idx="${x.idx}">
+        <span class="wc-emoji">${x.it.icon}</span>
+        <span class="wc-txt"><strong>${x.it.name}</strong><small>Seret ke garis waktu</small></span>
+      </button>`).join("")
+    : `<span class="mg-tray-empty">Semua kartu sudah ditempatkan. Periksa garis waktumu!</span>`;
+
+  const slotsHTML = D.order.map((itemIdx, slotIdx) => {
+    if (itemIdx === null || itemIdx === undefined) {
+      return `<div class="mg-slot" data-slot-idx="${slotIdx}">
+        <span class="slot-num">${slotIdx + 1}</span>
+        <span class="slot-empty">Letakkan<br>di sini</span>
+      </div>`;
+    }
+    const it = set.items[itemIdx];
+    return `<div class="mg-slot filled" data-slot-idx="${slotIdx}">
+      <span class="slot-num">${slotIdx + 1}</span>
+      <span class="slot-emoji">${it.icon}</span>
+      <span class="slot-name">${it.name}</span>
+      <button class="slot-remove" data-slot-remove="${slotIdx}" title="Kembalikan">×</button>
+    </div>`;
+  }).join("");
+
+  let resultHTML = "";
+  if (D.result) {
+    const sorted = [...set.items].sort((a, b) => a.val - b.val);
+    const ok = D.result.correct;
+    resultHTML = `<div class="mg-result-sheet">
+      <div class="rs-head">
+        <span class="rs-ico">${ok ? "🎉" : "📚"}</span>
+        <div>
+          <h3>${ok ? "Urutan dekomposisi 100% tepat!" : "Hampir benar! Ini garis waktu yang tepat"}</h3>
+          <p>${ok ? "Kamu berhasil menyusun waktu penguraian dari yang tercepat." : "Bandingkan urutanmu dengan fakta sains di bawah ini."}</p>
+        </div>
+      </div>
+      <div class="rs-list">
+        ${sorted.map((s, i) => `<div class="mg-rs-row">
+          <span class="rs-num">${i + 1}</span>
+          <span class="rs-emoji">${s.icon}</span>
+          <strong>${s.name}</strong>
+          <span class="rs-time">⏳ ${s.time}</span>
+        </div>`).join("")}
+      </div>
+      <div class="mg-rs-note"><b>Penjelasan STEM:</b> ${set.science}</div>
+      <div class="mg-rs-actions">
+        <button class="btn-soft" id="mgDecompRetry">${ico("refresh", 14)} Ulangi set ini</button>
+        <button class="btn-dark" id="mgDecompNext">${D.set < DECOMP_RACE_SETS.length - 1 ? "Tantangan berikutnya" : "Selesai & kembali"} ${ico("arrow", 12)}</button>
+      </div>
+    </div>`;
+  }
+
+  $("#gameRoot").innerHTML = `<div class="mg-page">
+    ${mgHeader("decomp", {
+      badge: "Decomp Race",
+      name: "Urutan Waktu",
+      pct: (placedCount / 4) * 100,
+      count: `${placedCount}/4`,
+      extra: `<span class="mg-pill gold">${ico("star", 11)} +${D.sessionPts} poin</span>`
+    })}
+    <div class="mg-stage">
+      <div class="mg-bg park"></div>
+      <div class="mg-shade"></div>
+      <div class="mg-instruction">
+        <span class="mi-ico">${ico("clock", 15)}</span>
+        <div><strong>Misi Garis Waktu</strong><p>Seret kartu sampah ke garis waktu. Susun dari yang <b>paling cepat terurai</b> di kiri hingga <b>paling lama</b> di kanan.</p></div>
+      </div>
+      <div class="mg-prompt">${ico("clock", 11)} Cepat terurai → Paling lama</div>
+      <div class="mg-hud-right">
+        <span class="mg-pill"><i></i> Set ${D.set + 1} dari ${DECOMP_RACE_SETS.length}</span>
+        <span class="mg-pill gold">${ico("star", 11)} +${D.sessionPts} poin</span>
+      </div>
+      ${D.result ? "" : `<div class="mg-decomp">
+        <div class="mg-tray" id="mgTray">${trayHTML}</div>
+        <div class="mg-timeline">
+          <div class="mg-tl-end"><span>🌱</span>Cepat<br>terurai</div>
+          <div class="mg-tl-slots" id="mgSlots">${slotsHTML}</div>
+          <div class="mg-tl-end"><span>⏳</span>Paling<br>lama</div>
+        </div>
+        <div class="mg-decomp-actions">
+          <button class="btn-soft" id="mgDecompReset">${ico("refresh", 13)} Reset urutan</button>
+          <button class="btn-dark" id="mgDecompCheck" ${placedCount < 4 ? "disabled" : ""}>Periksa garis waktu ${ico("arrow", 12)}</button>
+        </div>
+      </div>`}
+      ${resultHTML}
+    </div>
+  </div>`;
+
+  mgBindTop();
+  if (D.result) {
+    mgBindButton("#mgDecompRetry", () => {
+      D.order = [null, null, null, null];
+      D.result = null;
+      D.checked = false;
+      D.selected = -1;
+      soundState.play("click");
+      renderMiniGame();
+    });
+    mgBindButton("#mgDecompNext", () => {
+      if (D.set < DECOMP_RACE_SETS.length - 1) {
+        D.set++;
+        D.order = [null, null, null, null];
+        D.result = null;
+        D.checked = false;
+        D.selected = -1;
+        D.rewarded = false;
+        soundState.play("click");
+        renderMiniGame();
+      } else {
+        exitMiniGame();
+      }
+    });
+    return;
+  }
+
+  $$(".mg-waste-card").forEach(card => {
+    const idx = Number(card.dataset.itemIdx);
+    card.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", String(idx));
+      e.dataTransfer.effectAllowed = "move";
+      card.classList.add("dragging");
+    });
+    card.addEventListener("dragend", () => card.classList.remove("dragging"));
+    card.onclick = () => {
+      D.selected = D.selected === idx ? -1 : idx;
+      soundState.play("click");
+      renderMiniGame();
+    };
+  });
+
+  $$(".mg-slot").forEach(slot => {
+    const slotIdx = Number(slot.dataset.slotIdx);
+    slot.addEventListener("dragover", e => {
+      e.preventDefault();
+      slot.classList.add("over");
+    });
+    slot.addEventListener("dragleave", () => slot.classList.remove("over"));
+    slot.addEventListener("drop", e => {
+      e.preventDefault();
+      slot.classList.remove("over");
+      const raw = e.dataTransfer.getData("text/plain");
+      if (raw === "") return;
+      mgDecompPlace(Number(raw), slotIdx);
+    });
+    slot.onclick = e => {
+      if (e.target.closest("[data-slot-remove]")) return;
+      if (D.order[slotIdx] !== null && D.order[slotIdx] !== undefined) {
+        D.order[slotIdx] = null;
+        soundState.play("click");
+        renderMiniGame();
+        return;
+      }
+      if (D.selected >= 0) mgDecompPlace(D.selected, slotIdx);
+    };
+  });
+
+  $$("[data-slot-remove]").forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const sIdx = Number(btn.dataset.slotRemove);
+      D.order[sIdx] = null;
+      soundState.play("click");
+      renderMiniGame();
+    };
+  });
+
+  mgBindButton("#mgDecompReset", () => {
+    D.order = [null, null, null, null];
+    D.selected = -1;
+    soundState.play("click");
+    renderMiniGame();
+  });
+
+  mgBindButton("#mgDecompCheck", () => {
+    if (D.order.some(v => v === null || v === undefined)) return;
+    const correct = D.order.every((itemIdx, i) => set.items[itemIdx].val === i + 1);
+    D.checked = true;
+    D.result = { correct };
+    if (correct) {
+      soundState.play("badge");
+      launchConfetti(50);
+      if (!D.rewarded) {
+        D.rewarded = true;
+        mgAward("decomp", 60);
+      }
+    } else {
+      soundState.play("wrong");
+    }
+    renderMiniGame();
+  });
+}
+
+function mgDecompPlace(itemIdx, slotIdx) {
+  const D = MG_STATE.decomp;
+  if (!D || D.result) return;
+  if (!Number.isInteger(itemIdx) || !Number.isInteger(slotIdx)) return;
+  if (slotIdx < 0 || slotIdx > 3) return;
+  const from = D.order.indexOf(itemIdx);
+  if (from !== -1) D.order[from] = null;
+  D.order[slotIdx] = itemIdx;
+  D.selected = -1;
+  soundState.play("click");
+  renderMiniGame();
+}
+
+/* ---------------- C. Zero-Waste Swap ---------------- */
+function mgSwapStallArt(scen) {
+  const isShop = /koperasi/i.test(scen.title);
+  const sign = isShop ? "KOPERASI" : "KANTIN HIJAU";
+  const scallops = Array.from({ length: 9 }, (_, i) =>
+    `<circle cx="${70 + i * 62}" cy="104" r="19" fill="${i % 2 ? "#FBF3D2" : "#2E7D32"}" stroke="#276B2B" stroke-width="2"/>`
+  ).join("");
+  const shelfItems = isShop
+    ? `<g transform="translate(140 122)">
+        <rect x="0" y="8" width="20" height="38" rx="3" fill="#7CC7E8" stroke="#3E8DA6" stroke-width="2"/>
+        <rect x="28" y="0" width="22" height="46" rx="3" fill="#F2B36B" stroke="#B07A34" stroke-width="2"/>
+        <rect x="60" y="12" width="26" height="34" rx="3" fill="#CDEFFB" stroke="#3E8DA6" stroke-width="2"/>
+        <rect x="96" y="4" width="18" height="42" rx="3" fill="#9AD7A8" stroke="#4E9A5E" stroke-width="2"/>
+        <rect x="124" y="14" width="24" height="32" rx="3" fill="#F6D46B" stroke="#B98A1E" stroke-width="2"/>
+      </g>`
+    : `<g transform="translate(140 122)">
+        <rect x="0" y="14" width="18" height="32" rx="5" fill="#8FD3E8" stroke="#4E9DB5" stroke-width="2"/>
+        <rect x="4" y="6" width="10" height="10" rx="3" fill="#4E9DB5"/>
+        <rect x="32" y="20" width="22" height="26" rx="4" fill="#F3C25C" stroke="#B98A1E" stroke-width="2"/>
+        <circle cx="86" cy="30" r="14" fill="#EF8A6B" stroke="#C25A3F" stroke-width="2"/>
+        <path d="M78 24q8-6 16 0" stroke="#fff" stroke-width="3" fill="none"/>
+        <rect x="114" y="16" width="16" height="30" rx="4" fill="#9AD7A8" stroke="#4E9A5E" stroke-width="2"/>
+      </g>`;
+
+  return `<svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <ellipse cx="320" cy="330" rx="248" ry="22" fill="#1b3f2d" opacity=".16"/>
+    <rect x="92" y="72" width="456" height="166" rx="14" fill="#FBF3D2" stroke="#E2D3A6" stroke-width="4"/>
+    <rect x="120" y="152" width="400" height="10" rx="5" fill="#D9C79C"/>
+    <rect x="120" y="200" width="400" height="10" rx="5" fill="#D9C79C"/>
+    ${shelfItems}
+    <g transform="translate(392 126)">
+      <rect x="0" y="6" width="16" height="34" rx="4" fill="#8FD3E8" stroke="#4E9DB5" stroke-width="2"/>
+      <rect x="24" y="0" width="18" height="40" rx="4" fill="#F3C25C" stroke="#B98A1E" stroke-width="2"/>
+      <circle cx="64" cy="22" r="12" fill="#9AD7A8" stroke="#4E9A5E" stroke-width="2"/>
+    </g>
+    <rect x="70" y="60" width="18" height="226" rx="6" fill="#B98352" stroke="#8A5A31" stroke-width="3"/>
+    <rect x="552" y="60" width="18" height="226" rx="6" fill="#B98352" stroke="#8A5A31" stroke-width="3"/>
+    <rect x="46" y="58" width="548" height="44" rx="12" fill="#2E7D32" stroke="#276B2B" stroke-width="3"/>
+    ${scallops}
+    <rect x="228" y="108" width="184" height="42" rx="12" fill="#FBF3D2" stroke="#D9C79C" stroke-width="4"/>
+    <text x="320" y="136" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-size="19" font-weight="800" fill="#3E6B55">${sign}</text>
+    <rect x="90" y="238" width="460" height="60" rx="14" fill="#EFE2C2" stroke="#CBB68B" stroke-width="3"/>
+    <rect x="90" y="238" width="460" height="14" rx="7" fill="#D8C49B"/>
+    <g transform="translate(128 252)">
+      <rect x="0" y="10" width="22" height="30" rx="6" fill="#A8DBA0" stroke="#4E9A5E" stroke-width="2"/>
+      <rect x="8" y="2" width="8" height="10" rx="2" fill="#4E9A5E"/>
+    </g>
+    <g transform="translate(178 248)">
+      <rect x="0" y="0" width="26" height="42" rx="8" fill="#fff" stroke="#C5D9CB" stroke-width="2"/>
+      <rect x="3" y="8" width="20" height="22" rx="4" fill="#8FD3E8"/>
+    </g>
+    <g transform="translate(234 254)">
+      <ellipse cx="22" cy="20" rx="22" ry="12" fill="#F6D46B" stroke="#B98A1E" stroke-width="2"/>
+      <path d="M4 20q18 14 36 0" fill="none" stroke="#B98A1E" stroke-width="2"/>
+    </g>
+    <g transform="translate(470 250)">
+      <rect x="0" y="0" width="40" height="40" rx="9" fill="#fff" stroke="#C5D9CB" stroke-width="2"/>
+      <text x="20" y="27" text-anchor="middle" font-size="20">🌿</text>
+    </g>
+    <g transform="translate(500 214)">
+      <path d="M12 26c0-14 8-22 20-26-2 14-8 22-20 26z" fill="#7CC98A" stroke="#4E9A5E" stroke-width="2"/>
+      <path d="M10 28C4 18-2 13-10 12c2 11 8 17 20 16z" fill="#A8DBA0" stroke="#4E9A5E" stroke-width="2"/>
+      <path d="M0 28h24l-4 18H4z" fill="#E0A46E" stroke="#A16F35" stroke-width="2"/>
+    </g>
+  </svg>`;
+}
+
+function mgRenderSwap() {
+  const S = MG_STATE.swap;
+  const scen = ZERO_WASTE_SCENARIOS[S.scen] || ZERO_WASTE_SCENARIOS[0];
+  const chosen = S.picked >= 0 ? scen.options[S.picked] : null;
+  const best = scen.options.find(o => o.isBest);
+
+  const choicesHTML = S.result ? "" : `<div class="mg-choices">
+    ${scen.options.map((opt, idx) => `<button class="mg-choice" data-swap-opt="${idx}">
+      <span class="choice-ico">${opt.icon}</span>
+      <div>
+        <h4>${opt.title}</h4>
+        <p>${opt.waste}</p>
+      </div>
+      <span class="choice-pick">${ico("arrow", 10)} Pilih ini</span>
+    </button>`).join("")}
+  </div>`;
+
+  let compareHTML = "";
+  if (S.result && chosen) {
+    const ok = !!chosen.isBest;
+    compareHTML = `<div class="mg-compare ${ok ? "" : "bad"}" style="left:50%; transform:translateX(-50%); bottom:16px; width:min(580px, calc(100% - 32px));">
+      <span class="mc-badge">${ok ? `${ico("check", 10)} Pilihan terbaik` : "Analisis dampak"}</span>
+      <h4>${ok ? "Pilihan cerdas zero-waste!" : "Pilihan ini masih menghasilkan sampah"}</h4>
+      <div class="mc-grid">
+        <div class="mc-cell"><small>Dampak sampah</small><p>${chosen.waste}</p></div>
+        <div class="mc-cell"><small>Manfaat sumber daya</small><p>${chosen.impact}</p></div>
+      </div>
+      ${ok ? "" : `<div class="mg-rs-note" style="margin-top:8px;"><b>Alternatif terbaik:</b> ${best.title}. ${best.impact}</div>`}
+      <div class="mc-actions">
+        ${ok
+          ? `<button class="btn-soft sm" id="mgSwapRetry">${ico("refresh", 12)} Ulangi</button>
+             <button class="btn-dark sm" id="mgSwapNext">${S.scen < ZERO_WASTE_SCENARIOS.length - 1 ? "Skenario berikutnya" : "Selesai & kembali"} ${ico("arrow", 11)}</button>`
+          : `<button class="btn-soft sm" id="mgSwapRetry">Coba lagi</button>
+             <button class="btn-dark sm" id="mgSwapNext">${S.scen < ZERO_WASTE_SCENARIOS.length - 1 ? "Skenario berikutnya" : "Selesai & kembali"} ${ico("arrow", 11)}</button>`}
+      </div>
+    </div>`;
+  }
+
+  $("#gameRoot").innerHTML = `<div class="mg-page">
+    ${mgHeader("swap", {
+      badge: "Zero-Waste Swap",
+      name: "Gaya Hidup Bijak",
+      pct: S.result ? 100 : 0,
+      count: `${S.scen + 1}/${ZERO_WASTE_SCENARIOS.length}`,
+      extra: `<span class="mg-pill gold">${ico("star", 11)} +${S.sessionPts} poin</span>`
+    })}
+    <div class="mg-stage">
+      <div class="mg-bg garden"></div>
+      <div class="mg-shade"></div>
+      <div class="mg-swap-world">
+        <div class="mg-stall">${mgSwapStallArt(scen)}</div>
+      </div>
+      <div class="mg-instruction">
+        <span class="mi-ico">${ico("bulb", 15)}</span>
+        <div><strong>Apa yang kamu pilih?</strong><p>${scen.desc}</p></div>
+      </div>
+      <div class="mg-prompt">${ico("leaf-small", 11)} Pilih alternatif paling ramah lingkungan</div>
+      <div class="mg-hud-right">
+        <span class="mg-pill"><i></i> Skenario ${S.scen + 1} dari ${ZERO_WASTE_SCENARIOS.length}</span>
+        <span class="mg-pill gold">${ico("star", 11)} +${S.sessionPts} poin</span>
+      </div>
+      ${choicesHTML}
+      ${compareHTML}
+    </div>
+  </div>`;
+
+  mgBindTop();
+  $$("[data-swap-opt]").forEach(btn => {
+    btn.onclick = () => mgSwapPick(Number(btn.dataset.swapOpt));
+  });
+  mgBindButton("#mgSwapRetry", () => {
+    S.picked = -1;
+    S.result = null;
+    soundState.play("click");
+    renderMiniGame();
+  });
+  mgBindButton("#mgSwapNext", () => {
+    if (S.scen < ZERO_WASTE_SCENARIOS.length - 1) {
+      S.scen++;
+      S.picked = -1;
+      S.result = null;
+      S.rewarded = false;
+      soundState.play("click");
+      renderMiniGame();
+    } else {
+      exitMiniGame();
+    }
+  });
+}
+
+function mgSwapPick(idx) {
+  const S = MG_STATE.swap;
+  const scen = ZERO_WASTE_SCENARIOS[S.scen];
+  const opt = scen.options[idx];
+  if (!opt || S.result) return;
+  S.picked = idx;
+  S.result = { best: !!opt.isBest };
+  if (opt.isBest) {
+    soundState.play("badge");
+    launchConfetti(50);
+    if (!S.rewarded) {
+      S.rewarded = true;
+      mgAward("swap", 50);
+    }
+  } else {
+    soundState.play("wrong");
+  }
+  renderMiniGame();
+}
+
+/* ---------------- D. Recycling Lab ---------------- */
+const LAB_PRODUCTS = {
+  plastik: { icon: "👕", name: "Serat Kain Jersey Olahraga", sub: "Biji rPET dipintal menjadi serat poliester" },
+  kertas: { icon: "🥚", name: "Egg Tray Wadah Telur", sub: "Pulp selulosa dicetak menjadi wadah telur" },
+  organik: { icon: "🌱", name: "Kompos Humus Organik", sub: "Biomassa matang menjadi pupuk alami" }
+};
+
+function mgLabRoomArt(productIcon) {
+  return `<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="labWall" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#F8FDFA"/><stop offset="1" stop-color="#CFE8DA"/>
+      </linearGradient>
+      <linearGradient id="labMetal" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#EAF4EF"/><stop offset="1" stop-color="#8FA99C"/>
+      </linearGradient>
+      <linearGradient id="labWater" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7FD6E8"/><stop offset="1" stop-color="#3D9DBA"/>
+      </linearGradient>
+      <radialGradient id="labGlow" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#FFE08A" stop-opacity=".95"/><stop offset="1" stop-color="#FFE08A" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1000" height="600" fill="url(#labWall)"/>
+    <rect x="60" y="52" width="190" height="110" rx="14" fill="#CDEBFA" stroke="#fff" stroke-width="8"/>
+    <circle cx="140" cy="92" r="18" fill="#FFE07A"/>
+    <path d="M60 150c30-26 58-20 84-6s56 4 106-18v36H60z" fill="#8FD3A0"/>
+    <rect x="60" y="52" width="190" height="110" rx="14" fill="none" stroke="#B7D9C7" stroke-width="3"/>
+    <path d="M300 84h430v30H560v36" fill="none" stroke="#9FBAB0" stroke-width="12" stroke-linecap="round"/>
+    <path d="M300 84h430v30H560v36" fill="none" stroke="#D8E7DF" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="986" cy="99" r="14" fill="#EF7D7D" stroke="#C25252" stroke-width="4"/>
+    <rect y="470" width="1000" height="130" fill="#C3DFCE"/>
+    <path d="M0 470h1000v14H0z" fill="#A9CCB8"/>
+    <g opacity=".35" stroke="#A9CDB8" stroke-width="3">
+      <path d="M80 530h180M80 560h180M330 530h180M330 560h180M580 530h180M580 560h180M830 530h140M830 560h140"/>
+    </g>
+    <g>
+      <rect x="60" y="300" width="210" height="180" rx="20" fill="url(#labMetal)" stroke="#5E7C6C" stroke-width="4"/>
+      <rect x="82" y="322" width="166" height="100" rx="14" fill="url(#labWater)" stroke="#3E8DA6" stroke-width="4"/>
+      <path d="M82 360h166" stroke="#8FE2F2" stroke-width="5" opacity=".8"/>
+      <g fill="#fff" opacity=".85">
+        <circle class="mg-bubble" cx="120" cy="392" r="8"/>
+        <circle class="mg-bubble" cx="160" cy="404" r="5" style="animation-delay:.5s"/>
+        <circle class="mg-bubble" cx="205" cy="386" r="6" style="animation-delay:1s"/>
+      </g>
+      <rect x="96" y="440" width="138" height="24" rx="8" fill="#F1F7F4" stroke="#7E9C8D" stroke-width="3"/>
+      <circle class="mg-wheel" cx="240" cy="334" r="16" fill="#EAF4EE" stroke="#5E7F70" stroke-width="4"/>
+      <path d="M240 322v24M228 334h24" stroke="#5E7F70" stroke-width="4"/>
+      <circle cx="96" cy="316" r="5" fill="#EF7D7D"/>
+      <circle cx="114" cy="316" r="5" fill="#7CC98A"/>
+      <rect x="78" y="262" width="174" height="28" rx="14" fill="#FBF3D2" stroke="#D9C79C" stroke-width="2"/>
+      <text x="165" y="282" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-size="17" font-weight="800" fill="#2F5E47">STASIUN CUCI</text>
+    </g>
+    <g>
+      <rect x="310" y="330" width="270" height="150" rx="20" fill="url(#labMetal)" stroke="#5E7C6C" stroke-width="4"/>
+      <ellipse cx="445" cy="350" rx="108" ry="26" fill="#EAF4EE" stroke="#6E8F7F" stroke-width="4"/>
+      <ellipse cx="445" cy="350" rx="82" ry="16" fill="#D6EFE2" stroke="#7FA391" stroke-width="2"/>
+      <g class="mg-flake" fill="#7CC7E8" stroke="#3E8DA6" stroke-width="2">
+        <path d="M400 318l10-10 8 12-12 8z"/>
+      </g>
+      <g class="mg-flake" style="animation-delay:.7s" fill="#9AD7EE" stroke="#3E8DA6" stroke-width="2">
+        <path d="M472 312l12-8 6 14-13 6z"/>
+      </g>
+      <rect x="330" y="382" width="230" height="18" rx="9" fill="#DDEBE4" stroke="#7E9C8D" stroke-width="3"/>
+      <line class="mg-belt" x1="344" y1="391" x2="546" y2="391" stroke="#5E7C6C" stroke-width="5" stroke-linecap="round"/>
+      <circle class="mg-gear" cx="365" cy="436" r="22" fill="#F6FBF8" stroke="#5E7F70" stroke-width="5"/>
+      <circle class="mg-gear" cx="525" cy="436" r="22" fill="#F6FBF8" stroke="#5E7F70" stroke-width="5" style="animation-direction:reverse"/>
+      <circle cx="330" cy="344" r="5" fill="#7CC98A"/>
+      <circle cx="348" cy="344" r="5" fill="#F2C94C"/>
+      <rect x="346" y="292" width="198" height="28" rx="14" fill="#FBF3D2" stroke="#D9C79C" stroke-width="2"/>
+      <text x="445" y="312" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-size="17" font-weight="800" fill="#2F5E47">MESIN PENCACAH</text>
+    </g>
+    <g transform="translate(-30 0)">
+      <rect x="620" y="270" width="210" height="210" rx="22" fill="url(#labMetal)" stroke="#5E7C6C" stroke-width="4"/>
+      <rect x="646" y="300" width="158" height="100" rx="14" fill="#3E4A45"/>
+      <ellipse cx="725" cy="352" rx="58" ry="34" fill="url(#labGlow)"/>
+      <rect x="646" y="300" width="158" height="100" rx="14" fill="none" stroke="#5C7368" stroke-width="4"/>
+      <path d="M664 382q28-22 58 0t58 0" fill="none" stroke="#F2A65A" stroke-width="5" opacity=".85"/>
+      <g class="mg-spark" fill="#FFD86B">
+        <circle cx="690" cy="336" r="4"/><circle cx="742" cy="326" r="3"/><circle cx="768" cy="344" r="4"/>
+      </g>
+      <rect x="662" y="420" width="126" height="26" rx="10" fill="#F1F7F4" stroke="#7E9C8D" stroke-width="3"/>
+      <circle class="mg-gear" cx="812" cy="420" r="18" fill="#F6FBF8" stroke="#5E7F70" stroke-width="4"/>
+      <circle cx="648" cy="288" r="5" fill="#EF7D7D"/>
+      <circle cx="666" cy="288" r="5" fill="#7CC98A"/>
+    </g>
+    <g>
+      <rect x="860" y="366" width="110" height="114" rx="16" fill="#F3E7C8" stroke="#C9B487" stroke-width="4"/>
+      <rect x="878" y="386" width="74" height="56" rx="12" fill="#fff" stroke="#D9C9A3" stroke-width="3"/>
+      <text x="915" y="430" text-anchor="middle" font-size="30">${productIcon}</text>
+      <text x="915" y="466" text-anchor="middle" font-size="10" font-weight="800" fill="#8A6A1A" font-family="'Baloo 2',sans-serif">PRODUK</text>
+    </g>
+    <g transform="translate(330 168)">
+      <rect width="124" height="90" rx="10" fill="#FFFDF4" stroke="#D9C79C" stroke-width="3"/>
+      <text x="62" y="40" text-anchor="middle" font-size="28">♻️</text>
+      <text x="62" y="70" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-size="10.5" font-weight="800" fill="#3E6B55">REUSE &amp; RECYCLE</text>
+    </g>
+    <g transform="translate(470 504)">
+      <rect x="0" y="10" width="44" height="52" rx="10" fill="#7CC98A" stroke="#3E7D50" stroke-width="3"/>
+      <rect x="4" y="4" width="36" height="10" rx="4" fill="#3E7D50"/>
+      <path d="M22 32l5-7 5 7h-3v9h-4v-9z" fill="#fff"/>
+    </g>
+  </svg>`;
+}
+
+function mgLabReset(matKey) {
+  const L = MG_STATE.lab;
+  if (!L) return;
+  if (mgLabTimer) { clearTimeout(mgLabTimer); mgLabTimer = null; }
+  L.mat = matKey;
+  L.stage = 0;
+  L.answer = null;
+  L.running = false;
+}
+
+function mgRenderLab() {
+  const L = MG_STATE.lab;
+  if (!L.completed) L.completed = {};
+  const labData = RECYCLE_LAB_5STAGES[L.mat] || RECYCLE_LAB_5STAGES.plastik;
+  const stage = labData.stages[Math.min(L.stage, 4)];
+  const product = LAB_PRODUCTS[L.mat] || LAB_PRODUCTS.plastik;
+  const matKeys = Object.keys(RECYCLE_LAB_5STAGES);
+  const isReport = L.stage === 4;
+
+  const matsHTML = matKeys.map(k => {
+    const m = RECYCLE_LAB_5STAGES[k];
+    const done = !!L.completed[k];
+    return `<button class="mg-mat ${L.mat === k ? "active" : ""}" data-lab-mat="${k}">
+      <span class="mat-emoji">${m.icon}</span>
+      <strong>${m.name}</strong>
+      <small>${done ? "Selesai ✓" : "Pilih bahan"}</small>
+    </button>`;
+  }).join("");
+
+  const stagePills = labData.stages.map((s, i) => {
+    const cls = i < L.stage ? "done" : i === L.stage ? "active" : "";
+    return `<span class="mg-stage-pill ${cls}">${s.num}</span>`;
+  }).join("");
+
+  let note = "";
+  if (stage.interact) {
+    note = `<div class="mg-lab-note">${stage.interact}</div>`;
+  } else if (stage.question) {
+    note = `<div class="mg-lab-note"><b>${stage.question}</b> Pilih jawaban paling tepat berdasarkan sains.</div>`;
+  } else if (isReport) {
+    note = `<div class="mg-lab-note"><b>${stage.co2Saved}</b><br>${stage.energySaved}</div>`;
+  }
+
+  let actions = "";
+  if (L.stage === 0) {
+    actions = `<button class="btn-dark sm" id="mgLabStart">Mulai pemeriksaan ${ico("arrow", 12)}</button>`;
+  } else if (L.stage === 1) {
+    actions = `<button class="btn-dark sm" id="mgLabNextStage">Lanjut ke mesin ${ico("arrow", 12)}</button>`;
+  } else if (L.stage === 2) {
+    actions = `<button class="btn-dark sm" id="mgLabRun" ${L.running ? "disabled" : ""}>${L.running ? "Mesin berjalan..." : `Jalankan mesin ${ico("sparkle", 12)}`}</button>`;
+  } else if (L.stage === 3) {
+    const answer = L.answer;
+    actions = stage.options.map((opt, i) => {
+      const cls = answer && answer.idx === i ? (answer.ok ? "correct" : "wrong") : "";
+      return `<button class="mg-option ${cls}" data-lab-opt="${i}">${opt}</button>`;
+    }).join("");
+    if (answer && answer.ok) {
+      actions += `<button class="btn-dark sm" id="mgLabReport">Lihat hasil lab ${ico("arrow", 12)}</button>`;
+    }
+  }
+
+  const resultHTML = isReport ? `<div class="mg-lab-result">
+    <div class="lr-ico">${product.icon}</div>
+    <span class="mc-badge" style="display:inline-flex; align-items:center; gap:4px; background:#E8F5E9; color:#2E7D32; border-radius:99px; padding:3px 10px; font-size:7.5px; font-weight:900; text-transform:uppercase;">Produk berhasil dibuat</span>
+    <h3>${product.name}</h3>
+    <p>${product.sub}. ${stage.desc}</p>
+    <div class="lr-stats">
+      <div><small>CO₂ dicegah</small><strong>${stage.co2Saved}</strong></div>
+      <div><small>Efisiensi sumber daya</small><strong>${stage.energySaved}</strong></div>
+    </div>
+    <p style="font-size:9px; font-weight:800; color:#8A6A1A; margin-top:6px;">Bonus ${stage.ptsEarned || 80} poin + 20 koin</p>
+    <div class="lr-actions">
+      <button class="btn-soft sm" id="mgLabAgain">${ico("refresh", 12)} Coba bahan lain</button>
+      <button class="btn-dark sm" id="mgLabDone">Selesai ${ico("arrow", 11)}</button>
+    </div>
+  </div>` : "";
+
+  $("#gameRoot").innerHTML = `<div class="mg-page mg-lab-page">
+    ${mgHeader("lab", {
+      badge: "Recycling Lab",
+      name: "Simulasi STEM",
+      pct: ((L.stage + 1) / 5) * 100,
+      count: `${L.stage + 1}/5`,
+      extra: `<span class="mg-pill gold">${ico("star", 11)} +${L.sessionPts} poin</span>`
+    })}
+    <div class="mg-stage">
+      <div class="mg-bg lab"></div>
+      <div class="mg-lab-room ${L.running ? "running" : ""}">${mgLabRoomArt(product.icon)}</div>
+      <div class="mg-shade"></div>
+      <div class="mg-instruction">
+        <span class="mi-ico">${ico("bulb", 15)}</span>
+        <div><strong>Laboratorium Daur Ulang</strong><p>Pilih bahan mentah, jalankan mesin tahap demi tahap, lalu jawab tantangan parameter STEM untuk mencetak produk baru.</p></div>
+      </div>
+      <div class="mg-prompt">${ico("sparkle", 11)} Tahap ${stage.num} dari 5</div>
+      <div class="mg-lab-mats">${matsHTML}</div>
+      <aside class="mg-lab-console">
+        <div class="lc-head">
+          <span class="lc-ico">${labData.icon}</span>
+          <div>
+            <h3>${labData.name}</h3>
+            <span class="lc-sub">Tahap ${stage.num} dari 5 · ${stage.title}</span>
+          </div>
+        </div>
+        <div class="mg-stages">${stagePills}</div>
+        <p>${stage.desc}</p>
+        ${note}
+        <div class="mg-lab-actions">${actions}</div>
+      </aside>
+      ${resultHTML}
+    </div>
+  </div>`;
+
+  mgBindTop();
+
+  $$("[data-lab-mat]").forEach(btn => {
+    btn.onclick = () => {
+      const key = btn.dataset.labMat;
+      if (key === L.mat && L.stage === 0) return;
+      mgLabReset(key);
+      soundState.play("click");
+      renderMiniGame();
+    };
+  });
+
+  mgBindButton("#mgLabStart", () => {
+    L.stage = 1;
+    L.answer = null;
+    soundState.play("click");
+    renderMiniGame();
+  });
+
+  mgBindButton("#mgLabNextStage", () => {
+    L.stage = 2;
+    L.answer = null;
+    soundState.play("click");
+    renderMiniGame();
+  });
+
+  mgBindButton("#mgLabRun", () => {
+    if (L.running) return;
+    L.running = true;
+    soundState.play("click");
+    renderMiniGame();
+    mgLabTimer = setTimeout(() => {
+      if (MG_STATE.lab !== L || L.stage !== 2) return;
+      L.running = false;
+      L.stage = 3;
+      L.answer = null;
+      soundState.play("correct");
+      renderMiniGame();
+    }, 1700);
+  });
+
+  $$("[data-lab-opt]").forEach(btn => {
+    btn.onclick = () => {
+      if (L.stage !== 3) return;
+      const i = Number(btn.dataset.labOpt);
+      const ok = i === stage.correctOpt;
+      L.answer = { idx: i, ok };
+      if (ok) {
+        soundState.play("correct");
+      } else {
+        soundState.play("wrong");
+      }
+      renderMiniGame();
+    };
+  });
+
+  mgBindButton("#mgLabReport", () => {
+    L.stage = 4;
+    L.running = false;
+    if (!L.completed[L.mat]) {
+      L.completed[L.mat] = true;
+      const reportStage = RECYCLE_LAB_5STAGES[L.mat].stages[4];
+      mgAward("lab", reportStage.ptsEarned || 80, 20);
+    }
+    soundState.play("badge");
+    launchConfetti(60);
+    renderMiniGame();
+  });
+
+  mgBindButton("#mgLabAgain", () => {
+    const nextKey = matKeys[(matKeys.indexOf(L.mat) + 1) % matKeys.length];
+    mgLabReset(nextKey);
+    soundState.play("click");
+    renderMiniGame();
+  });
+
+  mgBindButton("#mgLabDone", exitMiniGame);
+}
+
+
 
 
 
